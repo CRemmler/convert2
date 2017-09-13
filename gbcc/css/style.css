@@ -1,0 +1,13 @@
+.netlogo-gallery-tab-area {
+  margin-top: 25px;
+}
+
+.netlogo-gallery-tab {
+  display: block;
+  background-color: #BCBCE5;
+  border-width: 2px;
+  border-bottom-width: 0;
+  border-style: solid;
+  padding: 7px;
+  text-align: center;
+}

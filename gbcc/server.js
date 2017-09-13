@@ -9,7 +9,7 @@ var fs = require("node-fs");
 const PORT = process.env.PORT || 3000;
 var myTimer;
 var roomData = {};
-
+ 
 app.use(express.static(__dirname));
 
 app.get('/', function(req, res){
@@ -72,8 +72,10 @@ io.on('connection', function(socket){
 			myUserId = socket.id;
 			roomData[myRoom].userData[myUserId] = {};
 			roomData[myRoom].userData[myUserId].exists = true;
+      console.log(myUserId);
+      if (activityType != "hubnet") { socket.emit("gbcc user enters", {userId: myUserId})}
 			// send settings to client
-			socket.emit("save settings", {userType: myUserType, userId: myUserId});
+			socket.emit("save settings", {userType: myUserType, userId: myUserId, gallerySettings: config.galleryJs});
 			// join myRoom
 			socket.join(myRoom+"-"+myUserType);
 			// tell teacher or student to display their interface
@@ -165,7 +167,7 @@ io.on('connection', function(socket){
 		var myUserId = socket.id;
 		var destination = data.hubnetMessageSource;
 		if (roomData[myRoom].userData[myUserId]) {
-			if (( data.hubnetMessageTag === "canvas") && (roomData[myRoom].userData[myUserId]["canvas"] === undefined)) {
+			if (( data.hubnetMessageTag.includes("canvas")) && (roomData[myRoom].userData[myUserId]["canvas"] === undefined)) {
 				roomData[myRoom].canvasOrder.push(myUserId);
 			}
 			if (destination === "server") {
@@ -210,6 +212,17 @@ io.on('connection', function(socket){
 			socket.emit("accept user data", {userId: data.userId, userData: roomData[myRoom].userData[data.userId]});
 		}
 	});
+  
+  // pass reporter from student to server
+  socket.on("request user forever data", function(data) {
+    var myRoom = socket.myRoom;
+    if (roomData[myRoom].userData != undefined) {
+      socket.emit("accept user forever data", {
+        key: "gallery-forever-button-code-"+data.userId,
+        status: data.status, 
+        userId: data.userId });
+    }
+  });
 
 	// pass reporter from student to server
 	socket.on("get reporter", function(data) {
@@ -260,6 +273,7 @@ io.on('connection', function(socket){
 		if (roomData[myRoom] != undefined && roomData[myRoom].userData[myUserId] != undefined) {
 			roomData[myRoom].userData[myUserId].exists = false;
 		}
+    if (activityType != "hubnet") { socket.emit("gbcc user exits", {userId: myUserId})}
 		if (socket.myUserType === "teacher") {
 			if (activityType === "hubnet") {
 				clearRoom(myRoom);

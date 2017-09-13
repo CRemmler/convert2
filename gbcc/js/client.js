@@ -4,17 +4,22 @@ var commandQueue = [];
 var userData = {};
 var myData = {};
 var activityType;
+var repaintPatches = true;
+var foreverButtonCode = new Object();
 
 jQuery(document).ready(function() {
   var userId;
   var userType;
   var turtleDict = {};
+  var allowMultipleButtonsSelected = false;
   socket = io();
 
   // save student settings
   socket.on("save settings", function(data) {
     userId = data.userId;
     userType = data.userType;
+    Gallery.setupGallery(data.gallerySettings);
+    allowMultipleButtonsSelected = data.gallerySettings.allowMultipleButtonsSelected; 
   });
 
   // display teacher or student interface
@@ -36,6 +41,15 @@ jQuery(document).ready(function() {
     }
   });
 
+  socket.on("gbcc user enters", function(data) {
+    console.log("gbcc user enters",data);
+    session.run('gbcc-on-user-enters "'+data.userId+'"');
+  });
+  
+  socket.on("gbcc user exits", function(data) {
+    session.run('gbcc-on-user-exits ["'+data.userId+'"]');
+  });
+
   // display admin interface
   socket.on("display admin", function(data) {
     Interface.showAdmin(data.roomData);
@@ -55,19 +69,21 @@ jQuery(document).ready(function() {
   // students display reporters
   socket.on("display reporter", function(data) {
     //console.log("display reporter "+data.hubnetMessageTag+" "+data.hubnetMessage);
-    if (data.hubnetMessageTag === "canvas") {
-      if ($("#image-"+data.hubnetMessageSource).length === 0) {
-        var canvasImg = new Image();
-        canvasImg.id = "image-" + data.hubnetMessageSource;
-        canvasImg.src = data.hubnetMessage;
-        canvasImg.userId = data.hubnetMessageSource;
-        canvasImg.onclick = function() {
-          socket.emit("request user data", {userId: canvasImg.userId});
-        };
-        $(".netlogo-gallery").append(canvasImg);
+    if (data.hubnetMessageTag.includes("canvas")) {
+      /*if ($("#image-"+data.hubnetMessageSource).length === 0) {
+        
+        Gallery.createCanvas({ id : "image-" + data.hubnetMessageSource,
+                src : data.hubnetMessage,
+                userId : data.hubnetMessageSource
+                //,
+                //onclick : function() {
+                //  socket.emit("request user data", {userId: canvasImg.userId}); } 
+              } );
       } else {
-        $("#image-"+data.hubnetMessageSource).attr("src", data.hubnetMessage);
-      }
+        Gallery.updateCanvas({ id: "#image-"+data.hubnetMessageSource, 
+                src: data.hubnetMessage })
+      }*/
+      Gallery.displayCanvas({message:data.hubnetMessage,source:data.hubnetMessageSource,tag:data.hubnetMessageTag});
     } else {
       var matchingMonitors = session.widgetController.widgets().filter(function(x) { 
         return x.type === "monitor" && x.display === data.hubnetMessageTag; 
@@ -94,7 +110,35 @@ jQuery(document).ready(function() {
   // AND You should not call gbcc-get-from-user from outside of the click handler
   socket.on("accept user data", function(data) {
     userData = data.userData;
-    world.hubnetManager.gbccRunCode('gbcc-gallery-click "'+data.userId+'"');
+    if (allowMultipleButtonsSelected) {
+      if ($("#image-"+data.userId).hasClass("selected")) {
+        session.run('gbcc-on-gallery-button-toggle-on "'+data.userId+'"');        
+      } else {
+        session.run('gbcc-on-gallery-button-toggle-off "'+data.userId+'"');        
+      }
+    } else {
+      session.run('gbcc-on-gallery-button-click "'+data.userId+'"');
+    }
+  });
+  
+  var myVar = "";
+  
+  function runForeverButtonCode() {
+    for (userId in foreverButtonCode) { 
+      session.runObserverCode(foreverButtonCode[userId]); 
+    }
+  }
+  
+  socket.on("accept user forever data", function(data) {
+    if (data.status === "on") {
+      if ($.isEmptyObject(foreverButtonCode)) { 
+        myVar = setInterval(runForeverButtonCode, 1000); 
+      }
+      foreverButtonCode[data.userId] = data.key;
+    } else {
+      delete foreverButtonCode[data.userId];
+      if ($.isEmptyObject(foreverButtonCode)) { clearInterval(myVar); }
+    }
   });
 
   socket.on("execute command", function(data) {

@@ -122,17 +122,53 @@ app.post('/fileupload',function(req,res){
         zip.file("config.json", configFile);
         zip.file("index.html", indexFile);
         zip.file(nlogoFileName, nlogoFile);
+        fs.readFileAsync("gbcc/css/font-awesome.min.css", "utf8").then(function(data) {
+           zip.file("css/font-awesome.min.css", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/css/gallery.css", "utf8").then(function(data) {
+           zip.file("css/gallery.css", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/css/style.css", "utf8").then(function(data) {
+           zip.file("css/style.css", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.eot", "utf8").then(function(data) {
+           zip.file("fonts/fontawesome-webfont.eot", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.svg", "utf8").then(function(data) {
+           zip.file("fonts/fontawesome-webfont.svg", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.ttf", "utf8").then(function(data) {
+           zip.file("fonts/fontawesome-webfont.ttf", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.woff", "utf8").then(function(data) {
+           zip.file("fonts/fontawesome-webfont.woff", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.woff2", "utf8").then(function(data) {
+           zip.file("fonts/fontawesome-webfont.woff2", data);
+        }).then(function() {
         fs.readFileAsync("gbcc/js/client.js", "utf8").then(function(data) {
            zip.file("js/client.js", data);
         }).then(function() {
+        fs.readFileAsync("gbcc/js/events.js", "utf8").then(function(data) {
+           zip.file("js/events.js", data);
+        }).then(function() {           
+         fs.readFileAsync("gbcc/js/gallery.js", "utf8").then(function(data) {
+            zip.file("js/gallery.js", data);
+        }).then(function() {            
         fs.readFileAsync("gbcc/js/interface.js", "utf8").then(function(data) {
            zip.file("js/interface.js", data);
         }).then(function() {
         fs.readFileAsync("gbcc/js/jquery.min.js", "utf8").then(function(data) {
            zip.file("js/jquery.min.js", data);
         }).then(function() {
-        fs.readFileAsync("gbcc/js/tortoiseCompiler.js", "utf8").then(function(data) {
-           zip.file("js/tortoiseCompiler.js", data);
+        fs.readFileAsync("gbcc/images/glacier.jpg", "utf8").then(function(data) {
+           zip.file("images/glacier.jpg", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/images/poppyfield.jpg", "utf8").then(function(data) {
+           zip.file("images/poppyfield.jpg", data); 
+        }).then(function() {
+        fs.readFileAsync("gbcc/images/seashore.jpg", "utf8").then(function(data) {
+          zip.file("images/seashore.jpg", data);
         }).then(function() {  
         fs.readFileAsync("gbcc/export/exportworld.js", "utf8").then(function(data) {
            zip.file("export/exportworld.js", data);
@@ -160,7 +196,7 @@ app.post('/fileupload',function(req,res){
         }).catch(function(e) {
           res.sendfile('index.html');
           console.error(e.stack);
-        }); }); }); }); }); }); }); }); }); }); });
+        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); 
       });
    });
 });

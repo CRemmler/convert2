@@ -1,0 +1,169 @@
+
+/*.gbcc-gallery img {
+  // in Gallery tab, a row can have 7 images at 122px, 6 at 146px and 5 at 179px
+  width: 173px;
+  height: 173px;
+  margin: 8px;
+  cursor: pointer;
+  border:5px solid white;
+}
+
+.gbcc-gallery {
+  -ms-flex: 1;
+      flex: 1;
+  margin-top: 0;
+  border:2px solid black;
+  padding-top: 10px;
+  padding: 15px;
+  border-bottom:0px;
+}
+
+.gbcc-gallery img:hover {
+  border:5px solid white;
+}
+
+.gbcc-gallery img:not(.selected,:hover) {
+  border:5px solid white;
+}
+
+.gbcc-gallery img.selected {
+  border:5px solid yellow;
+}
+
+.gbcc-gallery img.lastSelected {
+  border:5px solid yellow;
+}
+*/
+
+.gbcc-gallery {
+  -ms-flex: 1;
+      flex: 1;
+  margin-top: 0;
+  border:2px solid black;
+  padding-top: 10px;
+  padding: 15px;
+  border-bottom:0px;
+}
+
+.gbcc-gallery ul {
+  overflow:hidden;
+  list-style-type: none;
+}
+
+.gbcc-gallery img {
+  width:100%;
+  height:100%;
+}
+
+.gbcc-gallery li { 
+  width: 160px;
+  height: 160px;
+  text-align: left;
+  float:left;
+  border:5px solid white;
+  position: relative;
+  margin:15px;
+  overflow: hidden;
+}
+
+.gbcc-gallery span {
+  position: absolute;
+  background-color: white;
+}
+
+.gbcc-gallery li:hover {
+  cursor:pointer;
+  border:5px solid yellow;
+}
+
+.gbcc-gallery li.selected {
+  border:5px solid orange;
+}
+    
+.gbcc-gallery .card-image {
+  height: 99%;
+  width: 99%;
+  border: 1px solid black;
+}
+
+.gbcc-gallery {
+  padding: 5px;
+}
+
+.gbcc-gallery .card-text {
+  height: 99%;
+  width: 92.5%;
+  padding:0px 5px 0px 5px;
+  font-size: 18px;
+  overflow-y: scroll;
+  border:1px solid black;
+}
+
+.gbcc-gallery .arrow {
+  position: absolute;
+  //width: 20px;
+  //height: 20px;
+  top:45%;
+  //opacity: 0.5;
+  text-align: center;
+  display:none;
+  border:1px solid black;
+  padding: 0px 5px 0px 5px;
+  border: 1px solid black;
+  opacity: 0.6;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.gbcc-gallery .arrow i {
+  color: black;
+}
+
+.gbcc-gallery .arrow-right {
+  left:84.5%;
+  //padding: 2px 5px 2px 4px;
+}
+
+.gbcc-gallery .arrow-left {
+  //padding: 2px 0px 2px 4px;
+}
+
+.gbcc-gallery .arrow:hover {
+  opacity:1;
+  background-color: yellow;
+}
+
+.gbcc-gallery .forever-icon {
+  left:83%;
+  top:87%;
+  //padding: 2px 5px 2px 4px;
+  //opacity:0.5;
+  background: white;
+  display: none;
+  padding: 0px 5px 0px 5px;
+  border: 1px solid black;
+  opacity: 0.6;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.gbcc-gallery .forever-icon:hover {
+  opacity: 1;
+  background-color: yellow;
+}
+
+.gbcc-gallery .forever-icon.selected {
+  background: orange;
+  opacity: 1;
+  display: block;
+}
+
+.gbcc-gallery .label {
+  padding: 0px 5px 0px 5px;
+  border: 1px solid black;
+  opacity: 0.6;
+  font-weight: bold;
+  font-size: 18px;
+}
+
+.gbcc-gallery .z20 {z-index:20}

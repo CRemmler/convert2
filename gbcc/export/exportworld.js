@@ -5,7 +5,6 @@ var JSZip = require("jszip");
 var Promise = require("bluebird");
 Promise.promisifyAll(fs);
 
-
 function createReport(data, fileName) {
   var webpage = "";
   var value;
@@ -17,7 +16,7 @@ function createReport(data, fileName) {
   for (var user in data.userData) {
     for (var key in data.userData[user] ) {
       value = data.userData[user][key];
-      if (key === "canvas") {
+      if (key.includes("canvas")) {
         webpage += "    <p><img src='"+value+"'>";
       } else { if (key != "exists") {
           webpage += "    <p><span><b>"+key+"</b></span>\n";
@@ -53,4 +52,3 @@ module.exports = {
     sendResponse(createReport(data, fileName), zip, res, fileName);
   }
 };
-
