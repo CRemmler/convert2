@@ -1,22 +1,13 @@
 {
   "interfaceJs": {
     "loginComponents": {
-      "componentRange": [11,11]
     },
     "studentComponents": {
-      "componentRange": [0,10]
     },
     "teacherComponents": {
-      "componentRange": [0,10]
     }
   },
   "galleryJs": {
-    "buttonHoverBorderColor":         "5px solid blue" , 
-    "buttonUnselectedBorderColor":    "5px solid pink",
-    "buttonSelectedBorderColor":      "5px solid yellow",
-    "buttonLastSelectedBorderColor":  "5px solid pink",
-    "displayButtonLabel":              "true",
-    "allowMultipleButtonsSelected":   "true"
   }
 }
 

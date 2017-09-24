@@ -18,6 +18,13 @@ app.post('/fileupload',function(req,res){
    form.parse(req, function(err, fields, files) {
      var title = files.filetoupload.name;
      nlogoFileName = files.filetoupload.path || "error";
+     console.log(fields);
+     if (!fields["allowTabs"]) {
+       fields["allowMultipleLayers"] = undefined;
+       fields["allowMultipleSelections"] = undefined;
+       fields["allowCanvasForeverButtons"] = undefined;
+       fields["allowGalleryForeverButton"] = undefined;
+     }
      var configFile;
      var nlogoFile;
      var indexFile;
@@ -100,11 +107,19 @@ app.post('/fileupload',function(req,res){
          configFile = "";
          for(var i in array) {
            configFile += array[i] + "\n";
-           if (array[i].includes("loginComponents")) { configFile = configFile + '      "componentRange": [' +loginWidgetRange + "]\n" }
-           if (array[i].includes("teacherComponents")) { configFile = configFile + '      "componentRange": [' +teacherWidgetRange + "]\n" }
-           if (array[i].includes("studentComponents")) { configFile = configFile + '      "componentRange": [' +studentWidgetRange + "]\n" }
+           if (array[i].includes("loginComponents"))   { configFile += '      "componentRange": [' +loginWidgetRange + "]\n" }
+           if (array[i].includes("teacherComponents")) { configFile += '      "componentRange": [' +teacherWidgetRange + "]\n" }
+           if (array[i].includes("studentComponents")) { configFile += '      "componentRange": [' +studentWidgetRange + "]\n" }
+         
+           if (array[i].includes("galleryJs")) {
+             configFile += (fields["allowTabs"]) ?                 '    "allowTabs": true, \n' :                 '    "allowTabs": false, \n';
+             configFile += (fields["allowMultipleLayers"]) ?       '    "allowMultipleLayers": true, \n' :       '    "allowMultipleLayers": false, \n';
+             configFile += (fields["allowMultipleSelections"]) ?   '    "allowMultipleSelections": true, \n' :   '    "allowMultipleSelections": false, \n';
+             configFile += (fields["allowCanvasForeverButtons"]) ? '    "allowCanvasForeverButtons": true, \n' : '    "allowCanvasForeverButtons": false, \n';
+             configFile += (fields["allowGalleryForeverButton"]) ? '    "allowGalleryForeverButton": true \n' :  '    "allowGalleryForeverButton": false \n';
+           }
          }
-         //console.log(configFile);
+         console.log(configFile);
       }).then(function() {
       fs.readFileAsync("gbcc/index1.html", "utf8").then(function(data) {
          indexFile = "";
@@ -182,22 +197,22 @@ app.post('/fileupload',function(req,res){
         fs.readFileAsync("gbcc/server.js", "utf8").then(function(data) {
            zip.file("server.js", data);
         }).then(function() {
-        zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
-          .pipe(fs.createWriteStream(guid+'.zip'))
-          .on('finish', function () {
-            res.download(guid+'.zip', function() {
-              var fullPath= __dirname + '/'+guid+'.zip';
-              console.log(fullPath);
-              fs.unlink(fullPath, function() {
-                console.log(fullPath + " deleted");
-              });
-            });
-          });
+        //zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
+        //  .pipe(fs.createWriteStream(guid+'.zip'))
+        //  .on('finish', function () {
+        //    res.download(guid+'.zip', function() {
+        //      var fullPath= __dirname + '/'+guid+'.zip';
+        //      console.log(fullPath);
+        //      fs.unlink(fullPath, function() {
+        //        console.log(fullPath + " deleted");
+        //      });
+        //    });
+        //  });
         }).catch(function(e) {
           res.sendfile('index.html');
           console.error(e.stack);
-        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); 
-      });
+        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });  }); }); }); 
+     });
    });
 });
 

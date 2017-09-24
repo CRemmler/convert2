@@ -42,11 +42,4 @@ jQuery(document).ready(function() {
     Interface.importImageFile();
   });
 
-  // hidden canvases to hold drawings
-  /*
-  $("body").append('<canvas id="miniCanvas" width="500" height="500" style="display:none"></canvas>');
-  $("body").append('<canvas id="miniSafariCanvas" width="200" height="200" style="display:none"></canvas>');
-  
-  $("body").append('<div id="netlogo-model-container" style="display: inline-block; padding:0px"></div>');
-  */
 });

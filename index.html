@@ -1,47 +1,92 @@
 <html>
   <head>
     <title>Hubnet Web</title>
-    <style>
-      body { 
-        font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; 
-        font-size: 14px;
-        line-height: 20px;
-      }
-      .red { border: 2px solid red; }
-      .orange{ border: 2px solid orange; }
-      .yellow { border: 2px solid yellow; }
-      .green{ border: 2px solid #00cc00; }
-      .blue { border: 2px solid blue; }
-      .indigo { border: 2px solid #9933ff; }
-      .violet{ border: 2px solid #cc3399; }
-      div {
-        border-radius: 10px;
-        width: 600px;
-        padding: 10px;
-      }
-      .code {font-family: "Courier New", Courier; }
-    </style>
+    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <script type="text/javascript" src="gbcc/js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/convert.js"></script>
   </head>
   <body>
-    <h3>Convert "NetLogo Hubnet" to "NetLogo Hubnet Web"</h3>
+    <h1>Converter 2.0</h1>
+    <h3>Convert "NetLogo" to "NetLogo Hubnet/GbCC Web"</h3>
     <p>
-    <div class='red'><b>1. Find a NetLogo Hubnet file.</b>
-      <br>Run NetLogo 6.x. <br>Open "Gridlock Hubnet". <br>Save as "GridlockHubnet.nlogo"
+   <form action="fileupload" method="post" enctype="multipart/form-data">
+    <div class='red'><b>1. Find a NetLogo file or NetLogo Hubnet file.</b>
+      <p>Run NetLogo 6.x. 
+      <p>Open a NetLogo file like "Fireworks" or a NetLogo Hubnet file like "Gridlock Hubnet". 
+      <p>Save file with a .nlogo extension.
+      <p>Choose Layout:
+      <br><input type='radio' name='template' id='disease'>Disease Layout (Default Layout for NetLogo Hubnet file)
+      <br><input type='radio' name='template' id='introbuttons'>Introbuttons Layout (Default Layout for NetLogo file)
+      <br><input type='radio' name='template' id='segregation'>Segregation Layout
+      <br><input type='radio' name='template' id='fishtank'>Fishtank Layout
+      <br><input type='radio' name='template' id='newtonia'>Newtonia Layout
+      <br><input type='radio' name='template' id='fireworks'>Fireworks Layout
+      <br><input type='radio' name='template' id='custom'>Custom Layout
+      <p>Layouts can include the following settings:
+      <br><input type='checkbox' name='allowTabs' choice='1' class='choice'> Allow students to have Command Center, NetLogo Code, Gallery and Model Info Tabs.
+      <div id='settings'>
+        <input type='checkbox' name='allowMultipleLayers' choice='2' class='choice'> Allow canvases to have multiple layers.
+        <br><input type='checkbox' name='allowMultipleSelections' choice='3' class='choice'> Allow students to select multiple canvases. 
+        <br><input type='checkbox' name='allowCanvasForeverButtons' choice='4' class='choice'> Allow canvases to act as forever buttons.
+        <br><input type='checkbox' name='allowGalleryForeverButton' choice='5' class='choice'> Allow students the option to listen or ignore.
+      </div>
+    <br>
+    <div class="demo-container-wrapper">
+      <div class='demo-container' id='container0'>
+        <img class="user" src="images/teacher.png">
+        <img class='basicModel' src="images/basicModel.png">
+        <img class='demo demo1' src="images/demo1.png">
+        <img class='demo demo2' src="images/demo2.png">  
+        <img class='demo demo3a' src="images/demo3a.png">  
+        <img class='demo demo3' src="images/demo3.png">      
+        <img class='demo demo4' src="images/demo4.png">        
+        <img class='demo demo5' src="images/demo5.png"> 
+        <img class='demo demo4 notes' src="images/teal.png"> 
+        <img class='demo basicModel notes' src="images/brown.png"> 
+        <img class='demo demo3 notes' src="images/orange.png"> 
+        <img class='demo demo2 notes' src="images/yellow.png"> 
+        <img class='demo demo5 notes' src="images/green.png"> 
+        <img class='demo viewControls notes' src="images/gray.png">         
+        <img class='viewControls' src="images/viewControls.png">
+        <img class='demo basicTabs' src="images/basicTabs.png">
+        <img class='demo allTabs notes' src="images/pink.png"> 
+        <img class='demo basicTabs galleryTab notes' src="images/blue.png"> 
+      </div>
+      <div class='demo-container' id='container1'>
+        <img class="user" src="images/student.png">
+        <img class='basicModel' src="images/basicModel.png">
+        <img class='demo demo1' src="images/demo1.png">
+        <img class='demo demo2' src="images/demo2.png">  
+        <img class='demo demo3a' src="images/demo3a.png">  
+        <img class='demo demo3' src="images/demo3.png">      
+        <img class='demo demo4' src="images/demo4.png">        
+        <img class='demo demo5' src="images/demo5.png">   
+        <img class='demo allTabs notes student' src="images/pink.png"> 
+        <img class='demo demo4 notes' src="images/teal.png"> 
+        <img class='demo basicTabs galleryTab notes' src="images/blue.png"> 
+        <img class='demo basicModel notes student' src="images/brown.png"> 
+        <img class='demo demo3 notes' src="images/orange.png"> 
+        <img class='demo demo2 notes' src="images/yellow.png"> 
+        <img class='demo demo5 notes' src="images/green.png"> 
+        <img class='demo tabCover' src="images/tabCover.png">
+      </div>
     </div>
+  </div>
     <p>
-    <div class='orange'><b>2. Upload a NetLogo Hubnet file.</b>
+    <div class='orange'><b>2. Upload a NetLogo file or a NetLogo Hubnet file.</b>
       <p>
-      <form action="fileupload" method="post" enctype="multipart/form-data">
+      <!--<form action="fileupload" method="post" enctype="multipart/form-data">-->
         <input type="file" id="selectFileButton" name="filetoupload">
         <p>
         <button type="submit" id="uploadButton">Upload</button>
-      </form>
+      <!--</form>-->
     </div>
     <p>
-    <div class='yellow'><b>3. Receive Download of a NetLogo Hubnet Web zip file.</b>
+   </form>
+    <div class='yellow'><b>3. Receive Download of a NetLogo Hubnet/GbCC Web zip file.</b>
     </div>
     <p>
-    <div class='green'><b>4. Run NetLogo Hubnet Web App locally.</b>
+    <div class='green'><b>4. Run NetLogo Hubnet/GbCC Web App locally.</b>
       <br>Install node and npm.
       <br>Unzip the compressed NetLogo Hubnet Web file.
       <br>In a command line, navigate to the unzipped folder.

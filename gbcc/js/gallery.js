@@ -7,10 +7,44 @@ Gallery = (function() {
   var is_opera = navigator.userAgent.toLowerCase().indexOf("op") > -1;
   if ((is_chrome)&&(is_safari)) { is_safari = false; }
   if ((is_chrome)&&(is_opera)) { is_chrome = false; }
-  var allowMultipleButtonsSelected = false;
   
+  var allowTabs;                 //done
+  var allowMultipleLayers;       //done
+  var allowMultipleSelections;   //done
+  var allowCanvasForeverButtons; //done
+  var allowGalleryForeverButton; //done
+  var galleryForeverButton = "on";
+  var myUserId;
+
   function setupGallery(data) {
-    allowMultipleButtonsSelected = data.allowMultipleButtonsSelected; 
+    var settings = data.settings;
+    myUserId = data.userId;
+    allowTabs = settings.allowTabs;
+    allowMultipleLayers = settings.allowMultipleLayers;
+    allowMultipleSelections = settings.allowMultipleSelections;
+    allowCanvasForeverButtons = settings.allowCanvasForeverButtons;
+    allowGalleryForeverButton = settings.allowGalleryForeverButton;
+    if (allowTabs) { // student, hubnet
+      $(".netlogo-tab-area").removeClass("hidden");
+    }
+    if (allowGalleryForeverButton) {
+      $(".netlogo-gallery-tab").append("<span class='gallery-forever-icon'><i class='fa fa-refresh' aria-hidden='true'></i></span>")
+      socket.emit("request gallery data", {userId: myUserId, status: "on"}); 
+      $(".gallery-forever-icon").on("click",function() {
+        if ($(".netlogo-gallery-tab").hasClass("selected")) {
+          $(".netlogo-gallery-tab").removeClass("selected");
+          $(".netlogo-gallery-tab-content").removeClass("selected");
+          $(".gbcc-gallery li").removeClass("gray-border");
+          galleryForeverButton = "on";
+          socket.emit("request user broadcast data");
+        } else {
+          $(".netlogo-gallery-tab").addClass("selected");
+          $(".netlogo-gallery-tab-content").addClass("selected");
+          $(".gbcc-gallery li").addClass("gray-border");
+          galleryForeverButton = "off"; 
+        }
+      });
+    }
   }
   
   assignZIndex();
@@ -27,7 +61,7 @@ Gallery = (function() {
     });
   }
   
-  if (!allowMultipleButtonsSelected) {
+  if (!allowCanvasForeverButtons) {
     $(".forever-icon").remove();
   }
   
@@ -36,7 +70,9 @@ Gallery = (function() {
     if ($("#"+thisId).find(".card").length > 1) { 
       $("#"+thisId+" .arrow").css("display","block");
     } 
-    $("#"+thisId+" .forever-icon").css("display","block");
+    if ($("#"+thisId).hasClass("selected")) {
+      $("#"+thisId+" .forever-icon").css("display","block");
+    }
   }
       
   function itemMouseoutHandler(thisLi) {
@@ -44,24 +80,35 @@ Gallery = (function() {
     if ($("#"+thisId).find(".card").length > 1) { 
       $("#"+thisId+" .arrow").css("display","none");
     } 
-    $("#"+thisId+" .forever-icon:not(.selected)").css("display","none");    
+    if ($("#"+thisId).hasClass("selected")) {
+      $("#"+thisId+" .forever-icon:not(.selected)").css("display","none");    
+    }
   }
   
   function cardClickHandler(thisElt) {
     var userId = $(thisElt).parent().attr("id").replace("gallery-item-","");
-    if (allowMultipleButtonsSelected) {
-      if ($(thisElt).parent().hasClass("selected")) {
-        $(thisElt).parent().removeClass("selected");
-        if ($(thisElt).parent().find(".forever-icon").hasClass("selected")) {
-          $(thisElt).parent().find(".forever-icon").removeClass("selected");
-          socket.emit("request user forever data", {userId: userId, status: "off"});  
-        }
-      } else { $(thisElt).parent().addClass("selected"); }
+    if ($(thisElt).parent().hasClass("selected")) {
+      $("#gallery-item-"+userId+" .forever-icon").css("display","none").removeClass("selected");
+      socket.emit("request user forever data", {userId: userId, status: "off"});  
     } else {
-      if ($(thisElt).parent().hasClass("selected")) { $(thisElt).parent().removeClass("selected");
+      $("#gallery-item-"+userId+" .forever-icon").css("display","block");
+    }
+    if ($(thisElt).parent().hasClass("selected")) {
+      $(thisElt).parent().removeClass("selected");
+      socket.emit("request user data", {userId: userId, status: "off"}); 
+    } else { 
+      if (allowMultipleSelections) {
+        $(thisElt).parent().addClass("selected"); 
+        socket.emit("request user data", {userId: userId, status: "on"});
       } else {
-        $(".selected").removeClass("selected");
+        $(".selected").each(function() {
+          if ($(this).attr("id") && $(this).attr("id").includes("gallery-item-")) {
+            socket.emit("request user data", {userId: $(this).attr("id").replace("gallery-item-",""), status: "off"}); 
+            $(this).removeClass("selected");
+          }
+        });
         $(thisElt).parent().addClass("selected");
+        socket.emit("request user data", {userId: userId, status: "on"}); 
       }
     }
   }
@@ -78,12 +125,11 @@ Gallery = (function() {
   function foreverClickHandler(thisSpan, userId) {
     if ($(thisSpan).hasClass("selected")) {  
       $(thisSpan).removeClass("selected");
-      $(thisSpan).parent().removeClass("selected");
       socket.emit("request user forever data", {userId: userId, status: "off"});  
     } else {
       $(thisSpan).addClass("selected");
       $(thisSpan).parent().addClass("selected"); 
-      session.compileObserverCode("gbcc-on-gallery-forever-go \""+userId+"\"", "gallery-forever-button-code-"+userId);
+      session.compileObserverCode("gbcc-on-canvas-go \""+userId+"\"", "gbcc-forever-button-code-"+userId);
       socket.emit("request user forever data", {userId: userId, status: "on"})  
     }      
   }
@@ -115,11 +161,7 @@ Gallery = (function() {
   function createCanvas(data) {
     var canvasImg = new Image();
     canvasImg.id = data.id;
-    canvasImg.src = data.src;
     canvasImg.userId = data.userId;
-    canvasImg.onclick = function() { 
-      socket.emit("request user data", {userId: canvasImg.userId})  
-    };
     var label = $(".gbcc-gallery li").length;
     if ($(".gbcc-gallery").length === 0) { 
       $(".netlogo-gallery-tab-content").append("<div class='gbcc-gallery'><ul></ul></div>"); 
@@ -127,10 +169,12 @@ Gallery = (function() {
     var newLiHtml = "<li id='gallery-item-"+data.userId+"'>";
     newLiHtml += "<span class=\"arrow arrow-left z20\"><i class=\"fa fa-chevron-left\" aria-hidden=\"true\"></i></span>";
     newLiHtml += "<span class=\"arrow arrow-right z20\"><i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i></span>";
-    if (allowMultipleButtonsSelected) {
+    if (allowCanvasForeverButtons) {
       newLiHtml += "<span class=\"forever-icon z20\"><i class=\"fa fa-refresh\" aria-hidden=\"true\"></i></span>";
+    } else {
+      newLiHtml += "<span></span>";      
     }
-    newLiHtml += "<span class=\"label z20\">"+label+"</span>";
+    newLiHtml += (myUserId === data.userId) ? "<span class=\"label z20 selected\">"+label+"</span>" : "<span class=\"label z20\">"+label+"</span>";
     newLiHtml += "</li>";
     $(".gbcc-gallery ul").append(newLiHtml);
     $("#gallery-item-"+label+" .card-image").append(canvasImg);
@@ -145,9 +189,6 @@ Gallery = (function() {
     canvasImg.id = data.id;
     canvasImg.src = data.src;
     canvasImg.userId = data.userId;
-    canvasImg.onclick = function() { 
-      socket.emit("request user data", {userId: canvasImg.userId})  
-    };
     newSpan = "<span class=\"card card-image\"><img id='"+data.id+"' src='"+data.src+"'></span>";
     $("#gallery-item-"+data.userId).append(newSpan);
     var zIndex = $("#gallery-item-"+data.userId+" span:not(.text-span)").length - 5;
@@ -156,14 +197,11 @@ Gallery = (function() {
   }
   
   function updateImageCard(data) {
-    $(data.id).attr("src", data.src);
+    $("#"+data.id).attr("src", data.src);
   }
 
   function createTextCard(data) {
     newSpan = "<span class=\"card card-text\"><span id=\""+data.id+"\" class=\"text-span\"><p>"+data.src.replace("gallery-text","")+"</span></span>";
-    $("#"+data.id).onclick = function() {
-      socket.emit("request user data", {userId: data.userId})        
-    }
     $("#gallery-item-"+data.userId).append(newSpan);
     var zIndex = $("#gallery-item-"+data.userId+" span:not(.text-span)").length - 5;
     $("#"+data.id).parent().css("z-index",zIndex);
@@ -171,21 +209,38 @@ Gallery = (function() {
   }
   
   function updateTextCard(data) {
-    $("#"+data.id).attr("html", data.src);
+    $("#"+data.id).html("<p>"+data.src.replace("gallery-text",""));
   }
   
   function displayCanvas(data) {
-    //console.log("checking for #"+data.+"-"+data.source);
+    if (galleryForeverButton === "off") { return; } 
     var canvasData = { 
             id : data.tag + "-" + data.source,
             src : data.message,
             userId : data.source
           }
     if ($("#gallery-item-"+data.source).length === 0 ) { createCanvas(canvasData); } 
-    if (data.message.substring(0,12) === "gallery-text") {
-      ($("#" + data.tag + "-" + data.source).length === 0) ? createTextCard(canvasData) : updateTextCard(canvasData);
+    if (data.message.substring(0,13) === "gallery-clear") {
+      $("#gallery-item" + data.source +" .card").remove(); 
+      canvasData.src="";
+      createTextCard(canvasData);
+      return;
+    }
+    if (allowMultipleLayers) {
+      if (data.message.substring(0,12) === "gallery-text") {
+        ($("#" + data.tag + "-" + data.source).length === 0) ? createTextCard(canvasData) : updateTextCard(canvasData);
+      } else {
+        ($("#" + data.tag + "-" + data.source).length === 0) ? createImageCard(canvasData) : updateImageCard(canvasData);
+      }
     } else {
-      ($("#" + data.tag + "-" + data.source).length === 0) ? createImageCard(canvasData) : updateImageCard(canvasData);
+      // remove existing cards
+      $("#gallery-item-" + data.source +" .card").remove(); 
+      // make another one
+      if (data.message.substring(0,12) === "gallery-text") {
+        createTextCard(canvasData);
+      } else {
+        createImageCard(canvasData);
+      }
     }
   }
   
@@ -193,7 +248,7 @@ Gallery = (function() {
   var canvasLength, canvasWidth, imageQuality;
   var svgData, img;
 
-  function broadcastToGallery(key, value) {  
+  function broadcastToGallery(key, value) {
     if (is_safari) {  
       miniCanvasId = "miniSafariCanvas";
       canvasLength = 200; canvasWidth = 200;
@@ -209,7 +264,18 @@ Gallery = (function() {
       drawPlot(value);
     } else if (key === "text") {
       drawText(value);
+    } else if (key === "clear") {
+      drawClear();
     }
+  }
+  
+  function drawClear(text) {
+    var message = "gallery-clear";
+    socket.emit("send reporter", {
+      hubnetMessageSource: "all-users", 
+      hubnetMessageTag: "canvas-clear", 
+      hubnetMessage: message
+    }); 
   }
   
   function drawText(text) {
@@ -272,52 +338,6 @@ Gallery = (function() {
     }
   }
   
-  /*
-  //gbcc:import-drawing ["img-from-webpage" "url" 0 0 200 200]
-  //gbcc:import-drawing ["img-from-file-upload" "" 0 0 200 200 ]
-  //gbcc:import-drawing ["img-from-file" "" 0 0 200 200]
-  //gbcc:import-drawing ["img-remove" "" 0 0 200 200]
-  function importDrawing(data) {
-    var action = data[0];
-    var filename = data[1];
-    var xmin = data[2];
-    var ymin = data[3];
-    var width = data[4];
-    var height = data[5];
-    if (action === "img-remove") {
-      repaintPatches = true;
-      $(".uploadImage").remove();
-    } else {
-      repaintPatches = false;
-      if (action === "img-from-webpage") {
-        // Code from: https://shkspr.mobi/blog/2015/11/google-secret-screenshot-api/
-        site = filename || "https://google.com/";
-        $.ajax({
-          url: 'https://www.googleapis.com/pagespeedonline/v1/runPagespeed?url=' + site + '&screenshot=true',
-          context: this,
-          type: 'GET',
-          dataType: 'json',
-          success: function(data) {
-              data = data.screenshot.data.replace(/_/g, '/').replace(/-/g, '+');
-              $(this).attr('src', 'data:image/jpeg;base64,' + data);
-              $("body").append("<img class='uploadImage' id='"+filename+"-"+xmin+"-"+ymin+"-"+width+"-"+height+"' src='"+data+"' style='display:none'>");
-            
-            }
-        });
-      } else if (action = "img-from-file-upload") {
-        
-        
-        
-        
-      } else if (action = "img-from-file") {
-        if ($("#"+filename+"-"+xmin+"-"+ymin+"-"+width+"-"+height).length > 0) {
-          $("#"+filename+"-"+xmin+"-"+ymin+"-"+width+"-"+height).remove();
-        }
-        $("body").append("<img class='uploadImage' id='"+filename+"-"+xmin+"-"+ymin+"-"+width+"-"+height+"' src='images/"+filename+"' style='display:none'>");
-      }
-    }
-  }*/
-
   return {
     displayCanvas: displayCanvas,
     broadcastToGallery: broadcastToGallery,

@@ -11,14 +11,14 @@ jQuery(document).ready(function() {
   var userId;
   var userType;
   var turtleDict = {};
-  var allowMultipleButtonsSelected = false;
+  var allowMultipleButtonsSelected = true;
   socket = io();
 
   // save student settings
   socket.on("save settings", function(data) {
     userId = data.userId;
     userType = data.userType;
-    Gallery.setupGallery(data.gallerySettings);
+    Gallery.setupGallery({settings: data.gallerySettings, userId: userId});
     allowMultipleButtonsSelected = data.gallerySettings.allowMultipleButtonsSelected; 
   });
 
@@ -42,12 +42,17 @@ jQuery(document).ready(function() {
   });
 
   socket.on("gbcc user enters", function(data) {
+    console.log("gbcc user enters");
     console.log("gbcc user enters",data);
-    session.run('gbcc-on-user-enters "'+data.userId+'"');
+    if (procedures.gbccOnUserEnters) {
+      session.run('gbcc-on-user-enters "'+data.userId+'"');
+    }
   });
   
   socket.on("gbcc user exits", function(data) {
-    session.run('gbcc-on-user-exits ["'+data.userId+'"]');
+    if (procedures.gbccOnUserExits) {
+      session.run('gbcc-on-user-exits ["'+data.userId+'"]');
+    }
   });
 
   // display admin interface
@@ -68,21 +73,8 @@ jQuery(document).ready(function() {
 
   // students display reporters
   socket.on("display reporter", function(data) {
-    //console.log("display reporter "+data.hubnetMessageTag+" "+data.hubnetMessage);
+    console.log("display reporter");
     if (data.hubnetMessageTag.includes("canvas")) {
-      /*if ($("#image-"+data.hubnetMessageSource).length === 0) {
-        
-        Gallery.createCanvas({ id : "image-" + data.hubnetMessageSource,
-                src : data.hubnetMessage,
-                userId : data.hubnetMessageSource
-                //,
-                //onclick : function() {
-                //  socket.emit("request user data", {userId: canvasImg.userId}); } 
-              } );
-      } else {
-        Gallery.updateCanvas({ id: "#image-"+data.hubnetMessageSource, 
-                src: data.hubnetMessage })
-      }*/
       Gallery.displayCanvas({message:data.hubnetMessage,source:data.hubnetMessageSource,tag:data.hubnetMessageTag});
     } else {
       var matchingMonitors = session.widgetController.widgets().filter(function(x) { 
@@ -93,7 +85,6 @@ jQuery(document).ready(function() {
         matchingMonitors[0].reporter       = function() { return data.hubnetMessage; };
       }
       else if (activityType === "hubnet") {
-        //console.log(data.hubnetMessageTag+" "+data.hubnetMessage);
         world.observer.setGlobal(data.hubnetMessageTag.toLowerCase(),data.hubnetMessage);
       } else {
         // WARNING: gbcc-set-globals overwrites globals, may not want this feature
@@ -109,27 +100,30 @@ jQuery(document).ready(function() {
   // WARNING: This means you should not call the gallery click handler from within NetLogo
   // AND You should not call gbcc-get-from-user from outside of the click handler
   socket.on("accept user data", function(data) {
+    console.log("accept user data "+data.status);
     userData = data.userData;
-    if (allowMultipleButtonsSelected) {
-      if ($("#image-"+data.userId).hasClass("selected")) {
-        session.run('gbcc-on-gallery-button-toggle-on "'+data.userId+'"');        
-      } else {
-        session.run('gbcc-on-gallery-button-toggle-off "'+data.userId+'"');        
+    //if (allowMultipleButtonsSelected) {
+    if (data.status === "on") {
+      if (procedures.gbccOnCanvasSelect) {
+        session.run('gbcc-on-canvas-select "'+data.userId+'"');        
       }
     } else {
-      session.run('gbcc-on-gallery-button-click "'+data.userId+'"');
+      if (procedures.gbccOnCanvasDeselect) {
+        session.run('gbcc-on-canvas-deselect "'+data.userId+'"');        
+      }
     }
   });
   
   var myVar = "";
-  
   function runForeverButtonCode() {
     for (userId in foreverButtonCode) { 
+      console.log(foreverButtonCode[userId]);
       session.runObserverCode(foreverButtonCode[userId]); 
     }
   }
   
   socket.on("accept user forever data", function(data) {
+    console.log("accept user forever data "+data.status);
     if (data.status === "on") {
       if ($.isEmptyObject(foreverButtonCode)) { 
         myVar = setInterval(runForeverButtonCode, 1000); 

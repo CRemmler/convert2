@@ -145,6 +145,35 @@ Interface = (function() {
         }
       }
     });
+    // highlight all output areas on click
+    $(".netlogo-output").click(function() { 
+      var sel, range;
+      var el = $(this)[0];
+      if (window.getSelection && document.createRange) { //Browser compatibility
+        sel = window.getSelection();
+        if(sel.toString() == ''){ //no text selection
+           window.setTimeout(function(){
+              range = document.createRange(); //range object
+              range.selectNodeContents(el); //sets Range
+              sel.removeAllRanges(); //remove all ranges from selection
+              sel.addRange(range);//add Range to a Selection.
+          },1);
+        }
+      }else if (document.selection) { //older ie
+          sel = document.selection.createRange();
+          if(sel.text == ''){ //no text selection
+              range = document.body.createTextRange();//Creates TextRange object
+              range.moveToElementText(el);//sets Range
+              range.select(); //make selection.
+          }
+      }
+    });
+    // add show/hide client view
+    $(".netlogo-view-container").append("<span class='teacherOnly hubnetOnly' style='float:right'><input id='shareClientView' checked type='checkbox'>Enable View <input type='checkbox'> Enable Gallery</span>");
+    $(".netlogo-view-container").css("width", $(".netlogo-view-container canvas").css("width"));
+    $("#shareClientView").click(function() {
+      ($(this).prop("checked")) ? socket.emit('display view', {'display':true}) : socket.emit('display view', {'display':false});
+    });
   }
 
   function showItems(min, max) {

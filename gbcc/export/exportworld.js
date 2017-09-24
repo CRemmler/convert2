@@ -17,13 +17,22 @@ function createReport(data, fileName) {
     for (var key in data.userData[user] ) {
       value = data.userData[user][key];
       if (key.includes("canvas")) {
-        webpage += "    <p><img src='"+value+"'>";
+        webpage += "    <p><span><b>Gallery: </b></span>\n";
+        for (var canvas in value) {
+          if (canvas === "canvas-view" || canvas === "canvas-plot") {
+            webpage += "    <p><img src='"+value[canvas]+"'>";
+          } else {
+            webpage += "    <p><span><b>"+value[canvas].replace("gallery-text","")+"</b></span>\n";            
+          }
+        }
+        //webpage += "    <p><img src='"+value+"'>";
       } else { if (key != "exists") {
           webpage += "    <p><span><b>"+key+"</b></span>\n";
           webpage += "    <br><span>"+value+"</span><hr>\n";
         }
       }
     }
+    webpage += "    <hr>\n";
   }
   webpage += "  </body>\n";
   webpage+= "</html>";
