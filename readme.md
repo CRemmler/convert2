@@ -1,4 +1,6 @@
 ## Known Issues with Conversion
+Documentation for Conversion 2.0
+https://remmler.org/gbcc/v2/
 
 ## Use NetLogo Hubnet primitive commands and reporters
 - [x] hubnet-fetch-message 
@@ -29,8 +31,8 @@
 ## Reserved GbCC procedures
 - to gbcc-on-user-enters [student-id] end
 - to gbcc-on-user-exits [student-id] end
-- to gbcc-on-gallery-button-toggle-on [student-id] end
-- to gbcc-on-gallery-button-toggle-off [student-id] end
-- to gbcc-on-gallery-forever-go [ student-id ] end
+- to gbcc-on-canvas-select [student-id] end
+- to gbcc-on-canvas-deselect [student-id] end
+- to gbcc-on-canvas-go [ student-id ] end
 
 Contact: c_remmler@yahoo.com

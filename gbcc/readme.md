@@ -27,8 +27,8 @@
 - [x] gbcc:import-drawing 
 
 ## Reserved GbCC procedures
-- to gbcc-on-user-enters [student-id] end
-- to gbcc-on-user-exits [student-id] end
+- to gbcc-on-enter [student-id] end
+- to gbcc-on-exit [student-id] end
 - to gbcc-on-gallery-button-toggle-on [student-id] end
 - to gbcc-on-gallery-button-toggle-off [student-id] end
 - to gbcc-on-gallery-forever-go [ student-id ] end
