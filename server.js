@@ -197,17 +197,17 @@ app.post('/fileupload',function(req,res){
         fs.readFileAsync("gbcc/server.js", "utf8").then(function(data) {
            zip.file("server.js", data);
         }).then(function() {
-        //zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
-        //  .pipe(fs.createWriteStream(guid+'.zip'))
-        //  .on('finish', function () {
-        //    res.download(guid+'.zip', function() {
-        //      var fullPath= __dirname + '/'+guid+'.zip';
-        //      console.log(fullPath);
-        //      fs.unlink(fullPath, function() {
-        //        console.log(fullPath + " deleted");
-        //      });
-        //    });
-        //  });
+        zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
+          .pipe(fs.createWriteStream(guid+'.zip'))
+          .on('finish', function () {
+            res.download(guid+'.zip', function() {
+              var fullPath= __dirname + '/'+guid+'.zip';
+              console.log(fullPath);
+              fs.unlink(fullPath, function() {
+                console.log(fullPath + " deleted");
+              });
+            });
+          });
         }).catch(function(e) {
           res.sendfile('index.html');
           console.error(e.stack);
