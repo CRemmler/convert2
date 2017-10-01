@@ -5,6 +5,8 @@ Interface = (function() {
   function displayLoginInterface(rooms, components) {
     var roomButtonHtml, roomButtonId;
     setupItems();
+    addTeacherControls();
+    highlightOutputAreasOnClick();
     $(".netlogo-tab-area").addClass("hidden");
     $(".netlogo-export-wrapper").css("display","none");
     $(".netlogo-speed-slider").css("display","none");
@@ -14,28 +16,24 @@ Interface = (function() {
     $(".netlogo-model-title").removeClass("hidden");
     // show Welcome Students reporter
     var index = components.componentRange[0];
-    var widget = "<div id='netlogo-monitor-"+index+"' class='netlogo-widget netlogo-monitor netlogo-output'"+
-    "style='position: absolute; left: 40px; top: 82px; width: 238px; height: 45px; font-size: 14px;'>"+
+    var widget = "<div id='netlogo-monitor-"+index+"' class='netlogo-widget netlogo-monitor netlogo-output login-welcome-student'>"+
     "<label class='netlogo-label'>Welcome Student</label> "+
     "<output class='netlogo-value'>Please choose a room.</output></div>";
     $("body").append(widget);
     // show Welcome teacher reporter
     index++;
-    widget = "<div id='netlogo-monitor-"+index+"' class='netlogo-widget netlogo-monitor netlogo-output'"+
-    "style='position: absolute; left: 40px; top: 341px; width: 238px; height: 45px; font-size: 14px;'>"+
+    widget = "<div id='netlogo-monitor-"+index+"' class='netlogo-widget netlogo-monitor netlogo-output login-welcome-teacher'>"+
     "<label class='netlogo-label ''>Welcome Teacher</label> <output class='netlogo-value'>"+
-    "Please create a room.</output></div>";
+    "Please create a room.    <span id='tipHeading'><u>(tips) </u></span></output></div>";
     $("body").append(widget);
     // show room name input box
     index++;
-    widget = "<label id='netlogo-inputBox-"+index+"' class='netlogo-widget netlogo-input-box netlogo-input'"+
-    "style='position: absolute; left: 40px; top: 395px; width: 142px; height: 60px;'>"+
+    widget = "<label id='netlogo-inputBox-"+index+"' class='netlogo-widget netlogo-input-box netlogo-input login-room-name'>"+
     "<div class='netlogo-label'>room-name</div>  <textarea class='netlogo-multiline-input create-room-input'></textarea></label>";
     $("body").append(widget);
     // show Create Room button
     index++;
-    widget = "<button id='netlogo-button-"+index+"'class='netlogo-widget netlogo-button netlogo-command'"+
-    " type='button' style='position: absolute; left: 186px; top: 421px; width: 96px; height: 33px;'>"+
+    widget = "<button id='netlogo-button-"+index+"'class='netlogo-widget netlogo-button netlogo-command login-create-room' type='button' >"+
     "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>Create</span> </button>";
     $("body").append(widget);
     $("#netlogo-button-"+index).on("click", function() {
@@ -43,35 +41,49 @@ Interface = (function() {
       socket.emit("enter room", {room: myRoom});
     });
     // container for room Buttons
-    widget = "<div class='netlogo-widget room-button-container' style='background-color: white; overflow: scroll;"+
-    " border:1px solid black; position: absolute; left: 40px; top: 137px; width: 238px; height: 193px;"+
-    " padding:5px'></div>"
+    widget = "<div class='netlogo-widget login-room-button-container'></div>"
     $("body").append(widget);
+    var roomName;
+    var passCode;
     for (var i=0; i<rooms.length; i++) {
       // a room button
       index++;
-      widget = "<button id='netlogo-button-"+index+"'class='netlogo-widget netlogo-command'"+
-      " type='button' style='width: 103px; height: 33px; border:0px; margin: 5px'>"+
-      "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>"+rooms[i]+"</span> </button>";
-      $(".room-button-container").append(widget);
-      $(".room-button-container").on("click", "#netlogo-button-"+index, function() {
-        //$("#netlogo-button-"+index).on("click", function() {
-        var myRoom = $("#"+$(this).attr("id")+" span").html();
-        socket.emit("enter room", {room: myRoom});
+      roomName = rooms[i];
+      passCode = "";
+      if (roomName.indexOf(":") > 0) { 
+        passCode = roomName.substr(roomName.indexOf(":")+1, roomName.length).toUpperCase();
+        roomName = roomName.substr(0,roomName.indexOf(":")); 
+      }
+      widget = "<button id='netlogo-button-"+index+"'class='netlogo-widget netlogo-command login-room-button'"+
+      " type='button'>"+
+      "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>"+roomName+":</span> </button>";
+      $(".login-room-button-container").append(widget);
+      $(".login-room-button-container").on("click", "#netlogo-button-"+index, function() {
+        var response = window.prompt("What is the Entry Code?","").toUpperCase();
+        if (response === passCode) {
+          var myRoom = $("#"+$(this).attr("id")+" span").html();
+          socket.emit("enter room", {room: myRoom});
+        } else {
+          alert("Incorrect Password");
+        }
       });
     }
-    if (activityType === "hubnet") {
-      //$(".netlogo-gallery").prev().remove();
-      //$(".netlogo-gallery").remove();
-    } else {
-      $(".hubnetOnly").css("display","none");
-    }
+    widget  = "<div class='netlogo-widget login-tips'>";
+    widget += "  <span id='tips' style='display:none'>";
+    widget += "    <p><span>- Getting crowded? Start your own group of rooms. Add something like \"/octopus\" to the end of this url.</span>";
+    widget += "    <p><span>- Want to require an entry code? Call your room something like \"123:starfish\".";
+    widget += "    Your room will be called \"123\". The entry code will be \"starfish\".</span>";
+    widget += "  </span>";
+    widget += "</div>";
+    $("body").append(widget);
+    $("#tipHeading").on("click", function() {
+      ($("#tips").css("display") === "none") ? $("#tips").css("display","inline-block") : $("#tips").css("display","none"); 
+    });
     $("#exportHtmlButton").css("display","none");
   }
 
   function displayTeacherInterface(room, components) {
     showItems(components.componentRange[0], components.componentRange[1]);
-    //if (activityType === "gbcc") { $(".netlogo-export-wrapper").css("display","block"); $(".exporthtml").css("display","none")} 
     $(".netlogo-export-wrapper").css("display","block");
     $(".roomNameInput").val(room);
     $("#netlogo-title").append(" Room: "+room);
@@ -85,7 +97,7 @@ Interface = (function() {
     $("#netlogo-title").append(" Room: "+room);
     $(".netlogo-view-container").removeClass("hidden");
     $(".admin-body").css("display","none");
-    //$(".teacherOnly").css("display","none");
+    $(".teacherOnly").css("display","none");
     $(".netlogo-button:not(.hidden)").click(function(e){clickHandler(this, e, "button");});
     $(".netlogo-slider:not(.hidden)").click(function(e){clickHandler(this, e, "slider");});
     $(".netlogo-switcher:not(.hidden)").click(function(e){clickHandler(this, e, "switcher");});
@@ -145,6 +157,9 @@ Interface = (function() {
         }
       }
     });
+  }
+  
+  function highlightOutputAreasOnClick() {
     // highlight all output areas on click
     $(".netlogo-output").click(function() { 
       var sel, range;
@@ -168,11 +183,17 @@ Interface = (function() {
           }
       }
     });
-    // add show/hide client view
-    $(".netlogo-view-container").append("<span class='teacherOnly hubnetOnly' style='float:right'><input id='shareClientView' checked type='checkbox'>Enable View <input type='checkbox'> Enable Gallery</span>");
+  }
+  
+  function addTeacherControls() {
+    // add show/hide client view or tabs
+    $(".netlogo-view-container").append("<span class='teacherControls' style='float:right'><input id='enableView' checked type='checkbox'>Enable View <input id='enableTabs' checked type='checkbox'> Enable Tabs</span>");
     $(".netlogo-view-container").css("width", $(".netlogo-view-container canvas").css("width"));
-    $("#shareClientView").click(function() {
-      ($(this).prop("checked")) ? socket.emit('display view', {'display':true}) : socket.emit('display view', {'display':false});
+    $("#enableView").click(function() {
+      socket.emit('teacher requests UI change', {'display': $(this).prop("checked"), 'type': 'view'});
+    });
+    $("#enableTabs").click(function() {
+      socket.emit('teacher requests UI change', {'display': $(this).prop("checked"), 'type': 'tabs'});
     });
   }
 

@@ -1,6 +1,6 @@
 var app = require('express')();
 var http = require('http').Server(app);
-var io = require('socket.io')(http);
+var io = require('socket.io')(http, {path:'/socket.io'});
 var express = require('express');
 var config = require('./config.json');
 var exportworld = require('./export/exportworld.js');
@@ -8,30 +8,44 @@ var formidable = require('formidable');
 var fs = require("node-fs");
 const PORT = 3002; //process.env.PORT || 3000;
 var myTimer;
-var roomData = {};
+var schools = {};
  
 app.use(express.static(__dirname));
+
+var activityType = ((config.interfaceJs.teacherComponents.componentRange[0] === config.interfaceJs.studentComponents.componentRange[0])
+  && (config.interfaceJs.teacherComponents.componentRange[1] === config.interfaceJs.studentComponents.componentRange[1])) ?
+	"gbcc" : "hubnet";
 
 app.get('/', function(req, res){
 	res.sendfile('index.html');
 });
 
-var activityType = ((config.interfaceJs.teacherComponents.componentRange[0] === config.interfaceJs.studentComponents.componentRange[0])
-  && (config.interfaceJs.teacherComponents.componentRange[1] === config.interfaceJs.studentComponents.componentRange[1])) ?
-	"gbcc" : "hubnet";
-io.on('connection', function(socket){
-	var rooms = [];
+app.get('/:id',function(req,res){
+  res.sendfile('index.html');
+});
 
-	for (var key in roomData) { rooms.push(key); }
-	socket.emit("display interface", {userType: "login", rooms: rooms, components: config.interfaceJs.loginComponents, activityType: activityType});
+io.on('connection', function(socket){
+  var url = socket.handshake.headers.referer;
+  var school = url.substr(url.lastIndexOf("/")+1,url.length);
+  console.log("school ["+school+"]");
+  socket.school = school;
+  
+	var rooms = [];
+  if (schools[socket.school] === undefined) {
+    schools[socket.school] = {};
+  } 
+  var allRooms = schools[socket.school];
+	
+  for (var key in allRooms) { rooms.push(key); }
+	socket.emit("display interface", {userType: "login", rooms: rooms, components: config.interfaceJs.loginComponents, activityType: activityType });
 	socket.join("login");
 
 	function enableTimer() {
 		//console.log("enable");
 		var myTimer = setInterval(function() {
-			for (var key in roomData) {
+			for (var key in allRooms) {
 				if (socket) {
-					socket.to(key+"-student").emit("send update", {turtles: roomData[key].turtles, patches: roomData[key].patches});
+					socket.to(key+"-student").emit("send update", {turtles: allRooms[key].turtles, patches: allRooms[key].patches});
 				}
 			}
 		}, 250);
@@ -44,33 +58,34 @@ io.on('connection', function(socket){
 
 	// user enters room
 	socket.on("enter room", function(data) {
+    var allRooms = schools[socket.school];
 		var myUserType, myUserId;
 		socket.leave("login");
 		if (data.room === "admin") {
-			socket.emit("display admin", {roomData: getAdminData()});
+			socket.emit("display admin", {allRooms: getAdminData(school)});
 		} else {
 			// if user is first to enter a room, and only one room exists, then enable the timer
-			if (Object.keys(roomData).length === 0) {
+			if (Object.keys(allRooms).length === 0) {
 				if (activityType === "hubnet") { enableTimer(); }
 			}
 			// declare myRoom
 			socket.myRoom = data.room;
 			var myRoom = socket.myRoom;
-			if (!roomData[myRoom]) {
-				roomData[myRoom] = {};
-				roomData[myRoom].turtles = {};
-				roomData[myRoom].patches = {};
-				roomData[myRoom].userData = {};
-				roomData[myRoom].canvasOrder = [];
-				roomData[myRoom].settings = {};
+			if (!allRooms[myRoom]) {
+				allRooms[myRoom] = {};
+				allRooms[myRoom].turtles = {};
+				allRooms[myRoom].patches = {};
+				allRooms[myRoom].userData = {};
+				allRooms[myRoom].canvasOrder = [];
+				allRooms[myRoom].settings = {};
 			}
 			// declare myUserType, first user in is a teacher, rest are students
-			socket.myUserType = (countUsers(myRoom) === 0) ? "teacher" : "student";
+			socket.myUserType = (countUsers(myRoom, school) === 0) ? "teacher" : "student";
 			myUserType = socket.myUserType;
 			// declare myUserId
 			myUserId = socket.id;
-			roomData[myRoom].userData[myUserId] = {};
-			roomData[myRoom].userData[myUserId].exists = true;
+			allRooms[myRoom].userData[myUserId] = {};
+			allRooms[myRoom].userData[myUserId].exists = true;
       if (activityType != "hubnet") { 
         socket.emit("gbcc user enters", {userId: myUserId});
         socket.to(myRoom+"-teacher").emit("gbcc user enters", {userId: myUserId});
@@ -85,31 +100,31 @@ io.on('connection', function(socket){
 				socket.emit("display interface", {userType: "teacher", room: myRoom, components: config.interfaceJs.teacherComponents});
 				//send to all students on intro page
 				rooms = [];
-				for (var key in roomData) { rooms.push(key); }
+				for (var key in allRooms) { rooms.push(key); }
 				socket.to("login").emit("display interface", {userType: "login", rooms: rooms, components: config.interfaceJs.loginComponents, activityType: activityType});
-				if (activityType === "hubnet") { roomData[myRoom].settings.displayView = true;}
+				if (activityType === "hubnet") { allRooms[myRoom].settings.displayView = true;}
 			} else {
 				if (activityType === "hubnet") {
 					// send student a student interface
-					socket.emit("display interface", {userType: "student", room: myRoom, components: config.interfaceJs.studentComponents});
+					socket.emit("display interface", {userType: "hubnet student", room: myRoom, components: config.interfaceJs.studentComponents});
 					// send teacher a hubnet-enter-message
 					socket.to(myRoom+"-teacher").emit("execute command", {hubnetMessageSource: myUserId, hubnetMessageTag: "hubnet-enter-message", hubnetMessage: ""});
-					socket.emit("display my view", {"display":roomData[myRoom].settings.displayView});
+					socket.emit("display my view", {"display":allRooms[myRoom].settings.displayView});
 				} else {
 					// it's gbcc, so send student a teacher interface
-					socket.emit("display interface", {userType: "teacher", room: myRoom, components: config.interfaceJs.teacherComponents});
+					socket.emit("display interface", {userType: "gbcc student", room: myRoom, components: config.interfaceJs.teacherComponents});
 					var dataObject;
-					if (roomData[myRoom].userData != {}) {
+					if (allRooms[myRoom].userData != {}) {
 						var canvases;
-            for (var j=0; j < roomData[myRoom].canvasOrder.length; j++) {
-              socket.emit("gbcc user enters", {userId: roomData[myRoom].canvasOrder[j]});
-              canvases = roomData[myRoom].userData[roomData[myRoom].canvasOrder[j]]["canvas"];
+            for (var j=0; j < allRooms[myRoom].canvasOrder.length; j++) {
+              socket.emit("gbcc user enters", {userId: allRooms[myRoom].canvasOrder[j]});
+              canvases = allRooms[myRoom].userData[allRooms[myRoom].canvasOrder[j]]["canvas"];
               if (canvases != undefined) {
                 for (var canvas in canvases) {
   								dataObject = {
-  									hubnetMessageSource: roomData[myRoom].canvasOrder[j],
+  									hubnetMessageSource: allRooms[myRoom].canvasOrder[j],
   									hubnetMessageTag: canvas,
-  									hubnetMessage: roomData[myRoom].userData[roomData[myRoom].canvasOrder[j]]["canvas"][canvas],
+  									hubnetMessage: allRooms[myRoom].userData[allRooms[myRoom].canvasOrder[j]]["canvas"][canvas],
   									userId: myUserId,
   									activityType: activityType
   								};  
@@ -121,21 +136,24 @@ io.on('connection', function(socket){
 				}
 			}
 		}
+
+    schools[socket.school] = allRooms;
 	});
   
   socket.on("request user broadcast data", function() {
+    var allRooms = schools[socket.school];
     console.log("request user broadcast data");
     var myRoom = socket.myRoom;
 		var myUserId = socket.id;
     var canvases;
-    for (var j=0; j < roomData[myRoom].canvasOrder.length; j++) {
-      canvases = roomData[myRoom].userData[roomData[myRoom].canvasOrder[j]]["canvas"];
+    for (var j=0; j < allRooms[myRoom].canvasOrder.length; j++) {
+      canvases = allRooms[myRoom].userData[allRooms[myRoom].canvasOrder[j]]["canvas"];
       if (canvases != undefined) {
         for (var canvas in canvases) {
           dataObject = {
-            hubnetMessageSource: roomData[myRoom].canvasOrder[j],
+            hubnetMessageSource: allRooms[myRoom].canvasOrder[j],
             hubnetMessageTag: canvas,
-            hubnetMessage: roomData[myRoom].userData[roomData[myRoom].canvasOrder[j]]["canvas"][canvas],
+            hubnetMessage: allRooms[myRoom].userData[allRooms[myRoom].canvasOrder[j]]["canvas"][canvas],
             userId: myUserId,
             activityType: activityType
           };  
@@ -147,6 +165,7 @@ io.on('connection', function(socket){
 
 	// store updates to world
 	socket.on("update", function(data) {
+    var allRooms = schools[socket.school];
 		var myRoom = socket.myRoom;
 		var turtleId, turtle;
 		var patchId, patch;
@@ -154,12 +173,12 @@ io.on('connection', function(socket){
 		{
 			turtle = data.turtles[key];
 			turtleId = key;
-			if (roomData[myRoom].turtles[turtleId] === undefined) {
-				roomData[myRoom].turtles[turtleId] = {};
+			if (allRooms[myRoom].turtles[turtleId] === undefined) {
+				allRooms[myRoom].turtles[turtleId] = {};
 			}
 			if (Object.keys(turtle).length > 0) {
 				for (var attribute in turtle) {
-					roomData[myRoom].turtles[turtleId][attribute] = turtle[attribute];
+					allRooms[myRoom].turtles[turtleId][attribute] = turtle[attribute];
 				}
 			}
 		}
@@ -167,19 +186,21 @@ io.on('connection', function(socket){
 		{
 			patch = data.patches[key];
 			patchId = key;
-			if (roomData[myRoom].patches[patchId] === undefined) {
-				roomData[myRoom].patches[patchId] = {};
+			if (allRooms[myRoom].patches[patchId] === undefined) {
+				allRooms[myRoom].patches[patchId] = {};
 			}
 			if (Object.keys(patch).length > 0) {
 				for (var attribute in patch) {
-					roomData[myRoom].patches[patchId][attribute] = patch[attribute];
+					allRooms[myRoom].patches[patchId][attribute] = patch[attribute];
 				}
 			}
 		}
+    schools[socket.school] = allRooms;
 	});
 
 	// pass command from student to teacher
 	socket.on("send command", function(data) {
+    var allRooms = schools[socket.school];
 		var myRoom = socket.myRoom;
 		var myUserId = socket.id;
 		socket.to(myRoom+"-teacher").emit("execute command", {
@@ -191,16 +212,17 @@ io.on('connection', function(socket){
 
 	// pass reporter from server to student
 	socket.on("send reporter", function(data) {
+    var allRooms = schools[socket.school];
 		var myRoom = socket.myRoom;
 		var myUserId = socket.id;
 		var destination = data.hubnetMessageSource;
-		if (roomData[myRoom].userData[myUserId]) {
-			if (( data.hubnetMessageTag.includes("canvas")) && (roomData[myRoom].userData[myUserId]["canvas"] === undefined)) {
-				roomData[myRoom].canvasOrder.push(myUserId);
-        roomData[myRoom].userData[myUserId]["canvas"] = {};
+		if (allRooms[myRoom].userData[myUserId]) {
+			if (( data.hubnetMessageTag.includes("canvas")) && (allRooms[myRoom].userData[myUserId]["canvas"] === undefined)) {
+				allRooms[myRoom].canvasOrder.push(myUserId);
+        allRooms[myRoom].userData[myUserId]["canvas"] = {};
 			}
 			if (destination === "server") {
-				roomData[myRoom].userData[myUserId][data.hubnetMessageTag] = data.hubnetMessage;
+				allRooms[myRoom].userData[myUserId][data.hubnetMessageTag] = data.hubnetMessage;
 			} else {
 				var dataObject = {
 					hubnetMessageSource: myUserId,
@@ -213,9 +235,9 @@ io.on('connection', function(socket){
           if ( data.hubnetMessageTag.includes("canvas")) {
             
             if (data.hubnetMessageTag === "canvas-clear") {
-              roomData[myRoom].userData[myUserId]["canvas"] = {};
+              allRooms[myRoom].userData[myUserId]["canvas"] = {};
             }
-            roomData[myRoom].userData[myUserId]["canvas"][data.hubnetMessageTag] = data.hubnetMessage;
+            allRooms[myRoom].userData[myUserId]["canvas"][data.hubnetMessageTag] = data.hubnetMessage;
           }  
 					dataObject.hubnetMessage = data.hubnetMessage;
 					socket.to(myRoom+"-teacher").emit("display reporter", dataObject);
@@ -226,21 +248,24 @@ io.on('connection', function(socket){
 				}
 			}
 		}
+    schools[socket.school] = allRooms;
 	});
 
 	app.post('/exportgbccworld', function(req,res){
+    var allRooms = schools[socket.school];
 		var form = new formidable.IncomingForm();
 		form.parse(req, function(err, fields, files) {
 		 var myRoom = fields.roomname;
-		 exportworld.exportData(roomData[myRoom], myRoom, res);
+		 exportworld.exportData(allRooms[myRoom], myRoom, res);
 	 });
 	});
 
   // select, deselect, forever-select, forever-deselect
   socket.on("request user data", function(data) {
+    var allRooms = schools[socket.school];
     var myRoom = socket.myRoom;
-    if (roomData[myRoom].userData != undefined) {
-      var userData = roomData[myRoom].userData[data.userId];
+    if (allRooms[myRoom].userData != undefined) {
+      var userData = allRooms[myRoom].userData[data.userId];
       var key = (data.status === "forever-select") ? "gbcc-forever-button-code-"+data.userId : undefined;
       socket.emit("accept user data", {userId: data.userId, status: data.status, userData: userData, key: key});
     }
@@ -248,13 +273,14 @@ io.on('connection', function(socket){
 
 	// pass reporter from student to server
 	socket.on("get reporter", function(data) {
+    var allRooms = schools[socket.school];
 		var myRoom = socket.myRoom;
 		var myUserId = socket.id;
-		if (roomData[myRoom].userData[data.hubnetMessageSource]) {
+		if (allRooms[myRoom].userData[data.hubnetMessageSource]) {
 			var dataObject = {
 				hubnetMessageSource: data.hubnetMessageSource,
 				hubnetMessageTag: data.hubnetMessageTag,
-				hubnetMessage: roomData[myRoom].userData[data.hubnetMessageSource][data.hubnetMessageTag],
+				hubnetMessage: allRooms[myRoom].userData[data.hubnetMessageSource][data.hubnetMessageTag],
 				userId: myUserId,
 				activityType: activityType
 			};
@@ -264,14 +290,15 @@ io.on('connection', function(socket){
 
 	// get value from server
 	socket.on("get value", function(data) {
+    var allRooms = schools[socket.school];
 		var myRoom = socket.myRoom;
 		var myUserId = socket.id;
 		if (data.hubnetMessageSource === "") { data.hubnetMessageSource = myUserId; }
-		if (roomData[myRoom].userData[data.hubnetMessageSource]) {
+		if (allRooms[myRoom].userData[data.hubnetMessageSource]) {
 			var dataObject = {
 				hubnetMessageSource: data.hubnetMessageSource,
 				hubnetMessageTag: data.hubnetMessageTag,
-				hubnetMessage: roomData[myRoom].userData[data.hubnetMessageSource][data.hubnetMessageTag],
+				hubnetMessage: allRooms[myRoom].userData[data.hubnetMessageSource][data.hubnetMessageTag],
 			};
 			socket.emit("display value", dataObject);
 		}
@@ -281,19 +308,32 @@ io.on('connection', function(socket){
 		clearRoom(data.roomName);
 	});
 	
-	socket.on("display view", function(data) {
+	/*
+  socket.on("display view", function(data) {
+    var allRooms = schools[socket.school];
 		var myRoom = socket.myRoom;
-		roomData[myRoom].settings.displayView = data.display;
+		allRooms[myRoom].settings.displayView = data.display;
 		socket.to(myRoom+"-student").emit("display my view", {"display":data.display});
+    schools[socket.school] = allRooms;
 	});
+  */
+  
+  socket.on("teacher requests UI change", function(data) {
+    var allRooms = schools[socket.school];
+    var myRoom = socket.myRoom;
+    allRooms[myRoom].settings.displayView = data.display;
+    socket.to(myRoom+"-student").emit("student accepts UI change", {"display":data.display, "type":data.type});
+    schools[socket.school] = allRooms;
+  });
 	
 	// user exits
 	socket.on('disconnect', function () {
 		//clearInterval(myTimer);
+    var allRooms = schools[socket.school];
 		var myRoom = socket.myRoom;
 		var myUserId = socket.id;
-		if (roomData[myRoom] != undefined && roomData[myRoom].userData[myUserId] != undefined) {
-			roomData[myRoom].userData[myUserId].exists = false;
+		if (allRooms[myRoom] != undefined && allRooms[myRoom].userData[myUserId] != undefined) {
+			allRooms[myRoom].userData[myUserId].exists = false;
 		}
     if (activityType != "hubnet") { 
       socket.to(myRoom+"-teacher").emit("gbcc user exits", {userId: myUserId});
@@ -304,31 +344,35 @@ io.on('connection', function(socket){
 				clearRoom(myRoom);
 				disableTimer();
 			} else {
-				if (countUsers(myRoom) === 0) {	delete roomData[myRoom]; }
+				if (countUsers(myRoom, school) === 0) {	delete allRooms[myRoom]; }
 			}
 		} else {
-			if (roomData[myRoom] != undefined) {
+			if (allRooms[myRoom] != undefined) {
 				socket.to(myRoom+"-teacher").emit("execute command", {
 					hubnetMessageSource: myUserId,
 					hubnetMessageTag: "hubnet-exit-message",
 					hubnetMessage: ""
 				});
-				if (countUsers(myRoom) === 0) { delete roomData[myRoom];}
-				if (Object.keys(roomData).length === 0) { disableTimer();}
+				if (countUsers(myRoom, school) === 0) { delete allRooms[myRoom];}
+				if (Object.keys(allRooms).length === 0) { disableTimer();}
 			}
 		}
+    schools[socket.school] = allRooms;
 	});
 });
+
+
 
 http.listen(PORT, function(){
 	console.log('listening on ' + PORT );
 });
 
-function clearRoom(roomName) {
+function clearRoom(roomName, school) {
+  var allRooms = schools[school];
 	var myRoom = roomName;
 	var clientList = [];
-	if (roomData[myRoom]) {
-		for (var key in roomData[myRoom].userData) {
+	if (allRooms[myRoom]) {
+		for (var key in allRooms[myRoom].userData) {
 			clientList.push(key);
 		}
 		for (var i=0; i<clientList.length; i++) {
@@ -337,27 +381,30 @@ function clearRoom(roomName) {
 				io.sockets.sockets[clientList[i]].disconnect();
 			}
 		}
-		delete roomData[myRoom];
+		delete allRooms[myRoom];
+    schools[socket.school] = allRooms;
 	}
 }
 
-function countUsers(roomName) {
+function countUsers(roomName, school) {
+  var allRooms = schools[school];
 	var users = 0;
-	if (roomData[roomName]) {
-		for (var key in roomData[roomName].userData) {
-			if (roomData[roomName].userData[key].exists) { users++; }
+	if (allRooms[roomName]) {
+		for (var key in allRooms[roomName].userData) {
+			if (allRooms[roomName].userData[key].exists) { users++; }
 		}
 	}
 	return users;
 }
 
-function getAdminData() {
+function getAdminData(school) {
+  var allRooms = schools[school];
 	var displayData = "";
 	displayData = displayData + "<hr>Any rooms?";
-	for (var roomKey in roomData) {
+	for (var roomKey in allRooms) {
 		displayData = displayData + "<hr>Which room? " + roomKey;
-		displayData = displayData + "<br>How many users?" + (countUsers(roomKey));
-		displayData = displayData + "<br><button onclick=Interface.clearRoom('"+roomKey+"')>Clear Room</button>";
+		displayData = displayData + "<br>How many users?" + (countUsers(roomKey, school));
+		displayData = displayData + "<br><button onclick=Interface.clearRoom('"+roomKey+","+school+"')>Clear Room</button>";
 	}
 	return displayData;
 }
