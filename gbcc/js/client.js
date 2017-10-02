@@ -46,13 +46,13 @@ jQuery(document).ready(function() {
   });
 
   socket.on("gbcc user enters", function(data) {
-    if (procedures.gbccOnUserEnters) {
+    if (procedures.gbccOnEnter) {
       session.run('gbcc-on-enter "'+data.userId+'"');
     }
   });
   
   socket.on("gbcc user exits", function(data) {
-    if (procedures.gbccOnUserExits) {
+    if (procedures.gbccOnExit) {
       session.run('gbcc-on-exit ["'+data.userId+'"]');
     }
   });
@@ -104,11 +104,11 @@ jQuery(document).ready(function() {
     userData[data.userId] = data.userData;
     console.log("accept user data ",userData);
     if (data.status === "select") {
-      if (procedures.gbccOnCanvasSelect) {
+      if (procedures.gbccOnSelect) {
         session.run('gbcc-on-select "'+data.userId+'"');        
       }
     } else if (data.status === "deselect") {
-      if (procedures.gbccOnCanvasDeselect) {
+      if (procedures.gbccOnDeselect) {
         session.run('gbcc-on-deselect "'+data.userId+'"');        
       }
     } else if (data.status === "forever-deselect") {
