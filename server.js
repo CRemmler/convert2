@@ -24,6 +24,7 @@ app.post('/fileupload',function(req,res){
        fields["allowMultipleSelections"] = undefined;
        fields["allowCanvasForeverButtons"] = undefined;
        fields["allowGalleryForeverButton"] = undefined;
+       fields["allowTeacherControls"] = undefined;
      }
      var configFile;
      var nlogoFile;
@@ -117,9 +118,9 @@ app.post('/fileupload',function(req,res){
              configFile += (fields["allowMultipleSelections"]) ?   '    "allowMultipleSelections": true, \n' :   '    "allowMultipleSelections": false, \n';
              configFile += (fields["allowCanvasForeverButtons"]) ? '    "allowCanvasForeverButtons": true, \n' : '    "allowCanvasForeverButtons": false, \n';
              configFile += (fields["allowGalleryForeverButton"]) ? '    "allowGalleryForeverButton": true \n' :  '    "allowGalleryForeverButton": false \n';
+             configFile += (fields["allowTeacherControls"]) ?      '    "allowTeacherControls": true \n' :       '    "allowTeacherControls": false \n';
            }
          }
-         console.log(configFile);
       }).then(function() {
       fs.readFileAsync("gbcc/index1.html", "utf8").then(function(data) {
          indexFile = "";

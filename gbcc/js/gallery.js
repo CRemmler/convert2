@@ -13,17 +13,19 @@ Gallery = (function() {
   var allowMultipleSelections;   //done
   var allowCanvasForeverButtons; //done
   var allowGalleryForeverButton; //done
+  var allowTeacherControls;
   var galleryForeverButton = "on";
   var myUserId;
 
   function setupGallery(data) {
     var settings = data.settings;
     myUserId = data.userId;
-    allowTabs = settings.allowTabs;
-    allowMultipleLayers = settings.allowMultipleLayers;
-    allowMultipleSelections = settings.allowMultipleSelections;
-    allowCanvasForeverButtons = settings.allowCanvasForeverButtons;
-    allowGalleryForeverButton = settings.allowGalleryForeverButton;
+    allowTabs = settings.allowTabs || false;
+    allowMultipleLayers = settings.allowMultipleLayers || false;
+    allowMultipleSelections = settings.allowMultipleSelections || false;
+    allowCanvasForeverButtons = settings.allowCanvasForeverButtons || false;
+    allowGalleryForeverButton = settings.allowGalleryForeverButton || false;
+    allowTeacherControls = settings.allowTeacherControls || false;
     if (allowTabs) { // student, hubnet
       $(".netlogo-tab-area").removeClass("hidden");
     }
@@ -45,6 +47,7 @@ Gallery = (function() {
         }
       });
     }
+    if (!allowTeacherControls) { $(".teacherControls").css("display","none"); }
   }
   
   assignZIndex();

@@ -6,7 +6,6 @@
     $(".basicModel.notes").css("display","block");
     $(".allTabs.notes").css("display","block");
     $(".allTabs.notes.student").css("display","none");
-    $(".viewControls.notes").css("display","block");
     $("#settings").css("visibility","hidden");
     $(".choice").change(function() {
       var choice = $(this).attr("choice");
@@ -54,12 +53,8 @@
       }
     });
     choiceList = {};
-    choiceList["disease"] = {"on":[], "off":[1,2,3,4,5] };
-    choiceList["introbuttons"] = {"on":[1], "off":[2,3,4,5] };
-    choiceList["segregation"] = {"on":[1,2], "off":[3,4,5] };
-    choiceList["fishtank"] = {"on":[1,3], "off":[2,3,4] };
-    choiceList["newtonia"] = {"on":[1,2,3,4], "off":[5] };
-    choiceList["fireworks"] = {"on":[1,5], "off":[2,3,4] };
+    choiceList["disease"] = {"on":[], "off":[0,1,2,3,4,5] };
+    choiceList["introbuttons"] = {"on":[1], "off":[0,2,3,4,5] };
     $("#disease").click();
     $("#custom").change(function() {
       if (!$("[choice=1]").is("checked")) {

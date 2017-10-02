@@ -79,3 +79,7 @@
   text-decoration: underline;
   cursor:pointer;
 }
+
+#netlogo-title {
+  overflow:visible;
+}

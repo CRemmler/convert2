@@ -6,7 +6,7 @@ var config = require('./config.json');
 var exportworld = require('./export/exportworld.js');
 var formidable = require('formidable');
 var fs = require("node-fs");
-const PORT = 3002; //process.env.PORT || 3000;
+const PORT = process.env.PORT || 3000;
 var myTimer;
 var schools = {};
  
@@ -27,7 +27,6 @@ app.get('/:id',function(req,res){
 io.on('connection', function(socket){
   var url = socket.handshake.headers.referer;
   var school = url.substr(url.lastIndexOf("/")+1,url.length);
-  console.log("school ["+school+"]");
   socket.school = school;
   
 	var rooms = [];

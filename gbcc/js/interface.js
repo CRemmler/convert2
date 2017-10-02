@@ -1,7 +1,9 @@
 Interface = (function() {
 
   var items = {};
-
+  var passCodes = {};
+  var roomNames = {};
+  
   function displayLoginInterface(rooms, components) {
     var roomButtonHtml, roomButtonId;
     setupItems();
@@ -50,18 +52,21 @@ Interface = (function() {
       index++;
       roomName = rooms[i];
       passCode = "";
+      
       if (roomName.indexOf(":") > 0) { 
-        passCode = roomName.substr(roomName.indexOf(":")+1, roomName.length).toUpperCase();
+        passCode = roomName.substr(roomName.indexOf(":")+1, roomName.length).toUpperCase().trim();
         roomName = roomName.substr(0,roomName.indexOf(":")); 
       }
+      roomNames["netlogo-button-"+index] = rooms[i];
+      passCodes["netlogo-button-"+index] = passCode;
       widget = "<button id='netlogo-button-"+index+"'class='netlogo-widget netlogo-command login-room-button'"+
       " type='button'>"+
       "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>"+roomName+":</span> </button>";
       $(".login-room-button-container").append(widget);
       $(".login-room-button-container").on("click", "#netlogo-button-"+index, function() {
-        var response = window.prompt("What is the Entry Code?","").toUpperCase();
-        if (response === passCode) {
-          var myRoom = $("#"+$(this).attr("id")+" span").html();
+        var response = window.prompt("What is the Entry Code?","").toUpperCase().trim();
+        if (response === passCodes[$(this).attr("id")]) {
+          var myRoom = roomNames[$(this).attr("id")];
           socket.emit("enter room", {room: myRoom});
         } else {
           alert("Incorrect Password");
@@ -86,7 +91,7 @@ Interface = (function() {
     showItems(components.componentRange[0], components.componentRange[1]);
     $(".netlogo-export-wrapper").css("display","block");
     $(".roomNameInput").val(room);
-    $("#netlogo-title").append(" Room: "+room);
+    $("#netlogo-title").append(" "+room);
     $(".netlogo-view-container").removeClass("hidden");
     $(".netlogo-tab-area").removeClass("hidden");
     $(".admin-body").css("display","none");
@@ -94,7 +99,7 @@ Interface = (function() {
 
   function displayStudentInterface(room, components) {
     showItems(components.componentRange[0], components.componentRange[1]);
-    $("#netlogo-title").append(" Room: "+room);
+    $("#netlogo-title").append(" "+room);
     $(".netlogo-view-container").removeClass("hidden");
     $(".admin-body").css("display","none");
     $(".teacherOnly").css("display","none");
@@ -267,11 +272,9 @@ Interface = (function() {
         $("#importDrawingFileElem").attr("height",height);
         $("#importDrawingFileElem").click();
       } else if (action === "img-from-file") {
-        
         $.get("images/"+filename)
         .done(function() { 
           // Do something now you know the image exists.
-          console.log('yep');
           if ($("#"+filename.replace(".","")+"-"+xmin+"-"+ymin+"-"+width+"-"+height).length > 0) {
             $("#"+filename.replace(".","")+"-"+xmin+"-"+ymin+"-"+width+"-"+height).attr("src","images/"+filename);
           } else {
@@ -280,7 +283,6 @@ Interface = (function() {
           universe.repaint();
         }).fail(function() { 
         // Image doesn't exist - do something else.
-          console.log('nope');
         });
         
         

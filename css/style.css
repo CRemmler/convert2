@@ -22,6 +22,8 @@ div {
 #container1 {float:right;}
 #settings {padding:0px 0px 0px 20px;}
 .demo {position: absolute}
+#demo0a { top:130px; left:260px;}
+#demo0b { top:260px; left: 202px; }
 .demo1 { top:280px; left:12px; width:498; }
 .demo2 { top:364px; left:48px; }
 .demo3a { top:364px; left:156px; }
@@ -30,7 +32,6 @@ div {
 .demo5 { top:328px; left:480px; }
 .basicModel { width:475px; }
 .basicTabs { position: absolute; top:277px; left:13px; }
-.viewControls { position: absolute; top:260px; left:202px; }
 .tabCover { position: absolute; top:280px; left: 5px; }
 .user {position: absolute; top:50px; left:10px; width:190px;}
 .demo1.notes { top:0px; left:0px; }
