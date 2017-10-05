@@ -61,15 +61,19 @@ Interface = (function() {
       passCodes["netlogo-button-"+index] = passCode;
       widget = "<button id='netlogo-button-"+index+"'class='netlogo-widget netlogo-command login-room-button'"+
       " type='button'>"+
-      "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>"+roomName+":</span> </button>";
+      "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>"+roomName+"</span> </button>";
       $(".login-room-button-container").append(widget);
       $(".login-room-button-container").on("click", "#netlogo-button-"+index, function() {
-        var response = window.prompt("What is the Entry Code?","").toUpperCase().trim();
-        if (response === passCodes[$(this).attr("id")]) {
-          var myRoom = roomNames[$(this).attr("id")];
-          socket.emit("enter room", {room: myRoom});
+        var myRoom = roomNames[$(this).attr("id")];
+        if (passCodes[$(this).attr("id")] === "") {
+          socket.emit("enter room", {room: myRoom});  
         } else {
-          alert("Incorrect Password");
+          var response = window.prompt("What is the Entry Code?","").toUpperCase().trim();
+          if (response === passCodes[$(this).attr("id")]) {
+            socket.emit("enter room", {room: myRoom});
+          } else {
+            alert("Incorrect Password");
+          }
         }
       });
     }
