@@ -117,7 +117,7 @@ app.post('/fileupload',function(req,res){
              configFile += (fields["allowMultipleLayers"]) ?       '    "allowMultipleLayers": true, \n' :       '    "allowMultipleLayers": false, \n';
              configFile += (fields["allowMultipleSelections"]) ?   '    "allowMultipleSelections": true, \n' :   '    "allowMultipleSelections": false, \n';
              configFile += (fields["allowCanvasForeverButtons"]) ? '    "allowCanvasForeverButtons": true, \n' : '    "allowCanvasForeverButtons": false, \n';
-             configFile += (fields["allowGalleryForeverButton"]) ? '    "allowGalleryForeverButton": true \n' :  '    "allowGalleryForeverButton": false, \n';
+             configFile += (fields["allowGalleryForeverButton"]) ? '    "allowGalleryForeverButton": true, \n' :  '    "allowGalleryForeverButton": false, \n';
              configFile += (fields["allowTeacherControls"]) ?      '    "allowTeacherControls": true \n' :       '    "allowTeacherControls": false \n';
            }
          }
