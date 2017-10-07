@@ -370,7 +370,7 @@ function clearRoom(roomName, school) {
   var allRooms = schools[school];
 	var myRoom = roomName;
 	var clientList = [];
-	if (allRooms[myRoom]) {
+	if (allRooms && allRooms[myRoom]) {
 		for (var key in allRooms[myRoom].userData) {
 			clientList.push(key);
 		}
