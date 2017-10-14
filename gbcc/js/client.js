@@ -120,7 +120,9 @@ jQuery(document).ready(function() {
       }
       foreverButtonCode[data.userId] = data.key;
     } else if (data.status === "go") {
-      session.runObserverCode(foreverButtonCode[userId]); 
+      if (procedures.gbccOnGo) {
+        session.runObserverCode(foreverButtonCode[userId]); 
+      }
     }
   });
 
@@ -138,7 +140,7 @@ jQuery(document).ready(function() {
     commandObject.messageTag = data.hubnetMessageTag;
     commandObject.message = data.hubnetMessage;
     commandQueue.push(commandObject);
-    world.hubnetManager.setHubnetMessageWaiting(true);
+    world.hubnetManager.hubnetMessageWaiting = true;
   });
 
   // student leaves activity and sees login page

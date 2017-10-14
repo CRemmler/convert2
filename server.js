@@ -14,11 +14,11 @@ app.use(express.static(__dirname));
 app.post('/fileupload',function(req,res){
    console.log("NOTE FROM C: If you get an ENOENT error, place your file in this directory, and then upload.");
    var form = new formidable.IncomingForm();
-   var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
+   //var guid = (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();
    form.parse(req, function(err, fields, files) {
      var title = files.filetoupload.name;
+     var filename = title.substr(0,title.indexOf("."));
      nlogoFileName = files.filetoupload.path || "error";
-     console.log(fields);
      if (!fields["allowTabs"]) {
        fields["allowMultipleLayers"] = undefined;
        fields["allowMultipleSelections"] = undefined;
@@ -31,10 +31,10 @@ app.post('/fileupload',function(req,res){
      var indexFile;
      var loginWidgerRange, studentWidgetRange, teacherWidgetRange;
      var widgetList = [];
+     var nlogoFileData;
      fs.readFileAsync(nlogoFileName, "utf8").then(function(data) {
-
+        nlogoFileData = data;
         var sanitizedFileContents = removeUnimplementedPrimCalls(data.toString());
-
         var array = sanitizedFileContents.split("\n");
         nlogoFile = "";
         var numTeacherWidgets = 0;
@@ -137,9 +137,10 @@ app.post('/fileupload',function(req,res){
         var zip = new JSZip();
         zip.file("config.json", configFile);
         zip.file("index.html", indexFile);
-        zip.file(nlogoFileName, nlogoFile);
-        fs.readFileAsync("gbcc/css/font-awesome.min.css", "utf8").then(function(data) {
-           zip.file("css/font-awesome.min.css", data);
+        zip.file(title, nlogoFileData);
+        
+        fs.readFileAsync("gbcc/.gitignore", "utf8").then(function(data) {
+           zip.file(".gitignore", data);
         }).then(function() {
         fs.readFileAsync("gbcc/css/gallery.css", "utf8").then(function(data) {
            zip.file("css/gallery.css", data);
@@ -147,20 +148,8 @@ app.post('/fileupload',function(req,res){
         fs.readFileAsync("gbcc/css/style.css", "utf8").then(function(data) {
            zip.file("css/style.css", data);
         }).then(function() {
-        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.eot", "utf8").then(function(data) {
-           zip.file("fonts/fontawesome-webfont.eot", data);
-        }).then(function() {
-        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.svg", "utf8").then(function(data) {
-           zip.file("fonts/fontawesome-webfont.svg", data);
-        }).then(function() {
-        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.ttf", "utf8").then(function(data) {
-           zip.file("fonts/fontawesome-webfont.ttf", data);
-        }).then(function() {
-        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.woff", "utf8").then(function(data) {
-           zip.file("fonts/fontawesome-webfont.woff", data);
-        }).then(function() {
-        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.woff2", "utf8").then(function(data) {
-           zip.file("fonts/fontawesome-webfont.woff2", data);
+        fs.readFileAsync("gbcc/js/imageData.js", "utf8").then(function(data) {
+           zip.file("js/imageData.js", data);
         }).then(function() {
         fs.readFileAsync("gbcc/js/client.js", "utf8").then(function(data) {
            zip.file("js/client.js", data);
@@ -177,15 +166,24 @@ app.post('/fileupload',function(req,res){
         fs.readFileAsync("gbcc/js/jquery.min.js", "utf8").then(function(data) {
            zip.file("js/jquery.min.js", data);
         }).then(function() {
-        fs.readFileAsync("gbcc/images/glacier.jpg", "utf8").then(function(data) {
+        fs.readFileAsync("gbcc/images/glacier.jpg").then(function(data) {
            zip.file("images/glacier.jpg", data);
         }).then(function() {
-        fs.readFileAsync("gbcc/images/poppyfield.jpg", "utf8").then(function(data) {
+        fs.readFileAsync("gbcc/images/poppyfield.jpg").then(function(data) {
            zip.file("images/poppyfield.jpg", data); 
         }).then(function() {
-        fs.readFileAsync("gbcc/images/seashore.jpg", "utf8").then(function(data) {
+        fs.readFileAsync("gbcc/images/seashore.jpg").then(function(data) {
           zip.file("images/seashore.jpg", data);
         }).then(function() {  
+        fs.readFileAsync("gbcc/images/chevronLeft.png").then(function(data) {
+           zip.file("images/chevronLeft.png", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/images/chevronRight.png").then(function(data) {
+           zip.file("images/chevronRight.png", data); 
+        }).then(function() {
+        fs.readFileAsync("gbcc/images/refresh.png").then(function(data) {
+          zip.file("images/refresh.png", data);
+        }).then(function() { 
         fs.readFileAsync("gbcc/export/exportworld.js", "utf8").then(function(data) {
            zip.file("export/exportworld.js", data);
         }).then(function() {
@@ -199,10 +197,10 @@ app.post('/fileupload',function(req,res){
            zip.file("server.js", data);
         }).then(function() {
         zip.generateNodeStream({type:'nodebuffer',streamFiles:true})
-          .pipe(fs.createWriteStream(guid+'.zip'))
+          .pipe(fs.createWriteStream(filename+'.zip'))
           .on('finish', function () {
-            res.download(guid+'.zip', function() {
-              var fullPath= __dirname + '/'+guid+'.zip';
+            res.download(filename+'.zip', function() {
+              var fullPath= __dirname + '/'+filename+'.zip';
               console.log(fullPath);
               fs.unlink(fullPath, function() {
                 console.log(fullPath + " deleted");
@@ -212,7 +210,7 @@ app.post('/fileupload',function(req,res){
         }).catch(function(e) {
           res.sendfile('index.html');
           console.error(e.stack);
-        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });  }); }); }); 
+        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });
      });
    });
 });

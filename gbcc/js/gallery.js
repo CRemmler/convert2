@@ -170,10 +170,10 @@ Gallery = (function() {
       $(".netlogo-gallery-tab-content").append("<div class='gbcc-gallery'><ul></ul></div>"); 
     }
     var newLiHtml = "<li id='gallery-item-"+data.userId+"'>";
-    newLiHtml += "<span class=\"arrow arrow-left z20\"><i class=\"fa fa-chevron-left\" aria-hidden=\"true\"></i></span>";
-    newLiHtml += "<span class=\"arrow arrow-right z20\"><i class=\"fa fa-chevron-right\" aria-hidden=\"true\"></i></span>";
+    newLiHtml += "<span class=\"arrow arrow-left z20\"><img src=\"images/chevronLeft.png\"></span>";
+    newLiHtml += "<span class=\"arrow arrow-right z20\"><img src=\"images/chevronRight.png\"></span>";
     if (allowCanvasForeverButtons) {
-      newLiHtml += "<span class=\"forever-icon z20\"><i class=\"fa fa-refresh\" aria-hidden=\"true\"></i></span>";
+      newLiHtml += "<span class=\"forever-icon z20\"><img src=\"images/refresh.png\"></span>";
     } else {
       newLiHtml += "<span></span>";      
     }

@@ -328,19 +328,19 @@ io.on('connection', function(socket){
 	// user exits
 	socket.on('disconnect', function () {
 		//clearInterval(myTimer);
-    var allRooms = schools[socket.school];
+		var school = socket.school;
+		var allRooms = schools[school];
 		var myRoom = socket.myRoom;
 		var myUserId = socket.id;
 		if (allRooms[myRoom] != undefined && allRooms[myRoom].userData[myUserId] != undefined) {
 			allRooms[myRoom].userData[myUserId].exists = false;
 		}
-    if (activityType != "hubnet") { 
-      socket.to(myRoom+"-teacher").emit("gbcc user exits", {userId: myUserId});
-      //socket.emit("gbcc user exits", {userId: myUserId})
-    }
+		if (activityType != "hubnet") { 
+			socket.to(myRoom+"-teacher").emit("gbcc user exits", {userId: myUserId});
+		}
 		if (socket.myUserType === "teacher") {
 			if (activityType === "hubnet") {
-				clearRoom(myRoom);
+				clearRoom(myRoom, school);
 				disableTimer();
 			} else {
 				if (countUsers(myRoom, school) === 0) {	delete allRooms[myRoom]; }
@@ -356,7 +356,7 @@ io.on('connection', function(socket){
 				if (Object.keys(allRooms).length === 0) { disableTimer();}
 			}
 		}
-    schools[socket.school] = allRooms;
+		schools[school] = allRooms;
 	});
 });
 
