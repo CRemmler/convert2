@@ -145,9 +145,6 @@ app.post('/fileupload',function(req,res){
         fs.readFileAsync("gbcc/css/style.css", "utf8").then(function(data) {
            zip.file("css/style.css", data);
         }).then(function() {
-        fs.readFileAsync("gbcc/js/imageData.js", "utf8").then(function(data) {
-           zip.file("js/imageData.js", data);
-        }).then(function() {
         fs.readFileAsync("gbcc/js/client.js", "utf8").then(function(data) {
            zip.file("js/client.js", data);
         }).then(function() {
@@ -207,7 +204,7 @@ app.post('/fileupload',function(req,res){
         }).catch(function(e) {
           res.sendfile('index.html');
           console.error(e.stack);
-        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });
+        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });
      });
    });
 });
