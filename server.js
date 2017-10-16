@@ -139,9 +139,6 @@ app.post('/fileupload',function(req,res){
         zip.file("index.html", indexFile);
         zip.file(title, nlogoFileData);
         
-        fs.readFileAsync("gbcc/.gitignore", "utf8").then(function(data) {
-           zip.file(".gitignore", data);
-        }).then(function() {
         fs.readFileAsync("gbcc/css/gallery.css", "utf8").then(function(data) {
            zip.file("css/gallery.css", data);
         }).then(function() {
@@ -210,7 +207,7 @@ app.post('/fileupload',function(req,res){
         }).catch(function(e) {
           res.sendfile('index.html');
           console.error(e.stack);
-        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });
+        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });
      });
    });
 });
