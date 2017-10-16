@@ -30,7 +30,7 @@ Gallery = (function() {
       $(".netlogo-tab-area").removeClass("hidden");
     }
     if (allowGalleryForeverButton) {
-      $(".netlogo-gallery-tab").append("<span class='gallery-forever-icon'><i class='fa fa-refresh' aria-hidden='true'></i></span>")
+      $(".netlogo-gallery-tab").append("<span class='gallery-forever-icon'><img src=\"images/refresh.png\"></span>")
       socket.emit("request gallery data", {userId: myUserId, status: "select"}); 
       $(".gallery-forever-icon").on("click",function() {
         if ($(".netlogo-gallery-tab").hasClass("selected")) {
