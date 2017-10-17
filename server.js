@@ -142,6 +142,9 @@ app.post('/fileupload',function(req,res){
         fs.readFileAsync("gbcc/css/gallery.css", "utf8").then(function(data) {
            zip.file("css/gallery.css", data);
         }).then(function() {
+        fs.readFileAsync("gbcc/css/font-awesome.min.css", "utf8").then(function(data) {
+           zip.file("css/font-awesome.min.css", data);
+        }).then(function() {
         fs.readFileAsync("gbcc/css/style.css", "utf8").then(function(data) {
            zip.file("css/style.css", data);
         }).then(function() {
@@ -169,14 +172,20 @@ app.post('/fileupload',function(req,res){
         fs.readFileAsync("gbcc/images/seashore.jpg").then(function(data) {
           zip.file("images/seashore.jpg", data);
         }).then(function() {  
-        fs.readFileAsync("gbcc/images/chevronLeft.png").then(function(data) {
-           zip.file("images/chevronLeft.png", data);
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.eot").then(function(data) {
+           zip.file("fonts/fontawesome-webfont.eot", data);
         }).then(function() {
-        fs.readFileAsync("gbcc/images/chevronRight.png").then(function(data) {
-           zip.file("images/chevronRight.png", data); 
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.svg").then(function(data) {
+          zip.file("fonts/fontawesome-webfont.svg", data);
         }).then(function() {
-        fs.readFileAsync("gbcc/images/refresh.png").then(function(data) {
-          zip.file("images/refresh.png", data);
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.ttf").then(function(data) {
+          zip.file("fonts/fontawesome-webfont.ttf", data);
+        }).then(function() {       
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.woff").then(function(data) {
+          zip.file("fonts/fontawesome-webfont.woff", data);
+        }).then(function() {
+        fs.readFileAsync("gbcc/fonts/fontawesome-webfont.woff2").then(function(data) {
+          zip.file("fonts/fontawesome-webfont.woff2", data);
         }).then(function() { 
         fs.readFileAsync("gbcc/export/exportworld.js", "utf8").then(function(data) {
            zip.file("export/exportworld.js", data);
@@ -204,7 +213,7 @@ app.post('/fileupload',function(req,res){
         }).catch(function(e) {
           res.sendfile('index.html');
           console.error(e.stack);
-        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });
+        }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); }); });
      });
    });
 });

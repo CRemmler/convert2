@@ -46,13 +46,13 @@ jQuery(document).ready(function() {
   });
 
   socket.on("gbcc user enters", function(data) {
-    if (procedures.gbccOnEnter) {
+    if (procedures.gbccOnEnter != undefined) {
       session.run('gbcc-on-enter "'+data.userId+'"');
     }
   });
   
   socket.on("gbcc user exits", function(data) {
-    if (procedures.gbccOnExit) {
+    if (procedures.gbccOnExit != undefined) {
       session.run('gbcc-on-exit ["'+data.userId+'"]');
     }
   });
@@ -102,13 +102,12 @@ jQuery(document).ready(function() {
   
   socket.on("accept user data", function(data) {
     userData[data.userId] = data.userData;
-    console.log("accept user data ",userData);
     if (data.status === "select") {
-      if (procedures.gbccOnSelect) {
+      if (procedures.gbccOnSelect != undefined) {
         session.run('gbcc-on-select "'+data.userId+'"');        
       }
     } else if (data.status === "deselect") {
-      if (procedures.gbccOnDeselect) {
+      if (procedures.gbccOnDeselect != undefined) {
         session.run('gbcc-on-deselect "'+data.userId+'"');        
       }
     } else if (data.status === "forever-deselect") {
@@ -120,7 +119,7 @@ jQuery(document).ready(function() {
       }
       foreverButtonCode[data.userId] = data.key;
     } else if (data.status === "go") {
-      if (procedures.gbccOnGo) {
+      if (procedures.gbccOnGo != undefined) {
         session.runObserverCode(foreverButtonCode[userId]); 
       }
     }
