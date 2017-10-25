@@ -49,6 +49,9 @@ jQuery(document).ready(function() {
     if (procedures.gbccOnEnter != undefined) {
       session.run('gbcc-on-enter "'+data.userId+'"');
     }
+    if (data.userData) {
+      userData[data.userId] = data.userData;
+    }
   });
   
   socket.on("gbcc user exits", function(data) {
@@ -101,7 +104,14 @@ jQuery(document).ready(function() {
   });
   
   socket.on("accept user data", function(data) {
-    userData[data.userId] = data.userData;
+    if (userData[data.userId] === undefined) {
+      userData[data.userId] = {};
+    }
+    userData[data.userId][data.tag] = data.value;
+  });
+  
+  socket.on("accept user action", function(data) {
+    //userData[data.userId] = data.userData;
     if (data.status === "select") {
       if (procedures.gbccOnSelect != undefined) {
         session.run('gbcc-on-select "'+data.userId+'"');        
@@ -127,7 +137,7 @@ jQuery(document).ready(function() {
 
   var myVar = "";
   function runForeverButtonCode() {
-    console.log("run forever button code");
+    //console.log("run forever button code");
     for (userId in foreverButtonCode) { 
       socket.emit("request user forever data go", {userId: userId});
     }

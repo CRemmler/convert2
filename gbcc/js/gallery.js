@@ -93,27 +93,27 @@ Gallery = (function() {
     if (procedures.gbccOnGo != undefined) {
       if ($(thisElt).parent().hasClass("selected")) {
         $("#gallery-item-"+userId+" .forever-icon").css("display","none").removeClass("selected");
-        socket.emit("request user data", {userId: userId, status: "forever-deselect"});  
+        socket.emit("request user action", {userId: userId, status: "forever-deselect"});  
       } else {
         $("#gallery-item-"+userId+" .forever-icon").css("display","block");
       }
     }
     if ($(thisElt).parent().hasClass("selected")) {
       $(thisElt).parent().removeClass("selected");
-      socket.emit("request user data", {userId: userId, status: "deselect"}); 
+      socket.emit("request user action", {userId: userId, status: "deselect"}); 
     } else { 
       if (allowMultipleSelections) {
         $(thisElt).parent().addClass("selected"); 
-        socket.emit("request user data", {userId: userId, status: "select"});
+        socket.emit("request user action", {userId: userId, status: "select"});
       } else {
         $(".selected").each(function() {
           if ($(this).attr("id") && $(this).attr("id").includes("gallery-item-")) {
-            socket.emit("request user data", {userId: $(this).attr("id").replace("gallery-item-",""), status: "deselect"}); 
+            socket.emit("request user action", {userId: $(this).attr("id").replace("gallery-item-",""), status: "deselect"}); 
             $(this).removeClass("selected");
           }
         });
         $(thisElt).parent().addClass("selected");
-        socket.emit("request user data", {userId: userId, status: "select"}); 
+        socket.emit("request user action", {userId: userId, status: "select"}); 
       }
     }
   }
@@ -130,12 +130,12 @@ Gallery = (function() {
   function foreverClickHandler(thisSpan, userId) {
     if ($(thisSpan).hasClass("selected")) {  
       $(thisSpan).removeClass("selected");
-      socket.emit("request user data", {userId: userId, status: "forever-deselect"});  
+      socket.emit("request user action", {userId: userId, status: "forever-deselect"});  
     } else {
       $(thisSpan).addClass("selected");
       $(thisSpan).parent().addClass("selected"); 
       session.compileObserverCode("gbcc-on-go \""+userId+"\"", "gbcc-forever-button-code-"+userId);
-      socket.emit("request user data", {userId: userId, status: "forever-select"})  
+      socket.emit("request user action", {userId: userId, status: "forever-select"})  
     }      
   }
 
