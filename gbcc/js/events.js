@@ -31,7 +31,7 @@ jQuery(document).ready(function() {
   });
   
   // add GbCC link
-  $(".netlogo-powered-by").append("<span style='font-size: 16px;'> & <a href='http://remmler.org/gbcc'>GbCC</a></span>");
+  $(".netlogo-powered-by").append("<span style='font-size: 16px;'> & <a href='https://www.gbccstem.com/'>GbCC</a></span>");
   
   // add export
   $(".netlogo-export-wrapper").css("display","none");

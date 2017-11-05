@@ -12,6 +12,7 @@ Interface = (function() {
     $(".netlogo-tab-area").addClass("hidden");
     $(".netlogo-export-wrapper").css("display","none");
     $(".netlogo-speed-slider").css("display","none");
+    $("body").append("<div class='admin-body'></div>");
     $(".admin-body").css("display","inline");
     // hide all widgets
     $(".netlogo-widget").addClass("hidden");
@@ -39,6 +40,7 @@ Interface = (function() {
     "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>Create</span> </button>";
     $("body").append(widget);
     $("#netlogo-button-"+index).on("click", function() {
+      //var myRoom = markdown.toHTML($(".create-room-input").val());
       var myRoom = $(".create-room-input").val();
       socket.emit("enter room", {room: myRoom});
     });
@@ -61,7 +63,7 @@ Interface = (function() {
       passCodes["netlogo-button-"+index] = passCode;
       widget = "<button id='netlogo-button-"+index+"'class='netlogo-widget netlogo-command login-room-button'"+
       " type='button'>"+
-      "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>"+roomName+"</span> </button>";
+      "<div class='netlogo-button-agent-context'></div> <span class='netlogo-label'>"+markdown.toHTML(roomName)+"</span> </button>";
       $(".login-room-button-container").append(widget);
       $(".login-room-button-container").on("click", "#netlogo-button-"+index, function() {
         var myRoom = roomNames[$(this).attr("id")];
@@ -95,7 +97,8 @@ Interface = (function() {
     showItems(components.componentRange[0], components.componentRange[1]);
     $(".netlogo-export-wrapper").css("display","block");
     $(".roomNameInput").val(room);
-    $("#netlogo-title").append(" "+room);
+    var sanitizedRoom = markdown.toHTML(room);
+    $("#netlogo-title").html("<p>"+$("#netlogo-title").html()+" "+sanitizedRoom.substr(3,sanitizedRoom.length));
     $(".netlogo-view-container").removeClass("hidden");
     $(".netlogo-tab-area").removeClass("hidden");
     $(".admin-body").css("display","none");
@@ -103,7 +106,8 @@ Interface = (function() {
 
   function displayStudentInterface(room, components) {
     showItems(components.componentRange[0], components.componentRange[1]);
-    $("#netlogo-title").append(" "+room);
+    var sanitizedRoom = markdown.toHTML(room);
+    $("#netlogo-title").html("<p>"+$("#netlogo-title").html()+" "+sanitizedRoom.substr(3,sanitizedRoom.length));
     $(".netlogo-view-container").removeClass("hidden");
     $(".admin-body").css("display","none");
     $(".teacherControls").css("display","none");
@@ -118,17 +122,18 @@ Interface = (function() {
   function displayDisconnectedInterface() {
     $(".admin-body").css("display","inline");
     $(".admin-body").html("You have been disconnected. Please refresh the page to continue.");
-    $("#netlogo-model-container").addClass("hidden");
+    $(".netlogo-widget").addClass("hidden");
+    $("#netlogo-model-container").css("display","none");
   }
 
   function displayAdminInterface(rooms) {
-    $("#noRoomsChosen").css("display","none");
-    $("#netlogo-model-container").addClass("hidden");
-    $("#admin-data").html(rooms);
+    $(".netlogo-widget").addClass("hidden");
+    $("#netlogo-model-container").css("display","none");
+    $(".admin-body").html(rooms);
   }
 
-  function clearRoom(roomName) {
-    socket.emit("clear room", {roomName: roomName});
+  function clearRoom(roomName, school) {
+    socket.emit("admin clear room", {roomName: roomName, school: school});
   }
 
   function clickHandler(thisElement, e, widget) {

@@ -6,12 +6,15 @@ var myData = {};
 var activityType;
 var repaintPatches = true;
 var foreverButtonCode = new Object();
-
+var myUserId;
+  
 jQuery(document).ready(function() {
   var userId;
   var userType;
   var turtleDict = {};
   var allowMultipleButtonsSelected = true;
+  var allowGalleryForeverButton = true;
+  
   socket = io();
 
   // save student settings
@@ -20,6 +23,7 @@ jQuery(document).ready(function() {
     userType = data.userType;
     Gallery.setupGallery({settings: data.gallerySettings, userId: userId});
     allowMultipleButtonsSelected = data.gallerySettings.allowMultipleButtonsSelected; 
+    allowGalleryForeverButton = data.gallerySettings.allowGalleryForeverButton;
   });
 
   // display teacher or student interface
@@ -82,36 +86,39 @@ jQuery(document).ready(function() {
 
   // students display reporters
   socket.on("display reporter", function(data) {
-    if (data.hubnetMessageTag.includes("canvas")) {
-      Gallery.displayCanvas({message:data.hubnetMessage,source:data.hubnetMessageSource,tag:data.hubnetMessageTag});
-    } else {
-      var matchingMonitors = session.widgetController.widgets().filter(function(x) { 
-        return x.type === "monitor" && x.display === data.hubnetMessageTag; 
-      });
-      if (matchingMonitors.length > 0) {
-        matchingMonitors[0].compiledSource = data.hubnetMessage;
-        matchingMonitors[0].reporter       = function() { return data.hubnetMessage; };
-      }
-      else if (activityType === "hubnet") {
-        world.observer.setGlobal(data.hubnetMessageTag.toLowerCase(),data.hubnetMessage);
+    if (!allowGalleryForeverButton || (allowGalleryForeverButton && !$(".netlogo-gallery-tab").hasClass("selected"))) {
+      if (data.hubnetMessageTag.includes("canvas")) {
+        Gallery.displayCanvas({message:data.hubnetMessage,source:data.hubnetMessageSource,tag:data.hubnetMessageTag});
       } else {
-        // WARNING: gbcc-set-globals overwrites globals, may not want this feature
-        if (world.observer.getGlobal(data.hubnetMessageTag) != undefined) {
-          world.observer.setGlobal(data.hubnetMessageTag, data.hubnetMessage);
+        var matchingMonitors = session.widgetController.widgets().filter(function(x) { 
+          return x.type === "monitor" && x.display === data.hubnetMessageTag; 
+        });
+        if (matchingMonitors.length > 0) {
+          matchingMonitors[0].compiledSource = data.hubnetMessage;
+          matchingMonitors[0].reporter       = function() { return data.hubnetMessage; };
+        }
+        else if (activityType === "hubnet") {
+          world.observer.setGlobal(data.hubnetMessageTag.toLowerCase(),data.hubnetMessage);
+        } else {
+          // WARNING: gbcc-set-globals overwrites globals, may not want this feature
+          if (world.observer.getGlobal(data.hubnetMessageTag) != undefined) {
+            world.observer.setGlobal(data.hubnetMessageTag, data.hubnetMessage);
+          }
         }
       }
     }
   });
   
   socket.on("accept user data", function(data) {
-    if (userData[data.userId] === undefined) {
-      userData[data.userId] = {};
+    if (!allowGalleryForeverButton || (allowGalleryForeverButton && !$(".netlogo-gallery-tab").hasClass("selected"))) {
+      if (userData[data.userId] === undefined) {
+        userData[data.userId] = {};
+      }
+      userData[data.userId][data.tag] = data.value;
     }
-    userData[data.userId][data.tag] = data.value;
   });
   
   socket.on("accept user action", function(data) {
-    //userData[data.userId] = data.userData;
     if (data.status === "select") {
       if (procedures.gbccOnSelect != undefined) {
         session.run('gbcc-on-select "'+data.userId+'"');        
@@ -128,18 +135,15 @@ jQuery(document).ready(function() {
         myVar = setInterval(runForeverButtonCode, 1000); 
       }
       foreverButtonCode[data.userId] = data.key;
-    } else if (data.status === "go") {
-      if (procedures.gbccOnGo != undefined) {
-        session.runObserverCode(foreverButtonCode[userId]); 
-      }
-    }
+    } 
   });
 
   var myVar = "";
   function runForeverButtonCode() {
-    //console.log("run forever button code");
     for (userId in foreverButtonCode) { 
-      socket.emit("request user forever data go", {userId: userId});
+      if (procedures.gbccOnGo != undefined) {
+        session.runObserverCode(foreverButtonCode[userId]); 
+      }
     }
   }
 

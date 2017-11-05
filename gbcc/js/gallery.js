@@ -15,7 +15,6 @@ Gallery = (function() {
   var allowGalleryForeverButton; //done
   var allowTeacherControls;
   var galleryForeverButton = "on";
-  var myUserId;
 
   function setupGallery(data) {
     var settings = data.settings;
@@ -134,7 +133,7 @@ Gallery = (function() {
     } else {
       $(thisSpan).addClass("selected");
       $(thisSpan).parent().addClass("selected"); 
-      session.compileObserverCode("gbcc-on-go \""+userId+"\"", "gbcc-forever-button-code-"+userId);
+      session.compileObserverCode("gbcc-forever-button-code-"+userId, "gbcc-on-go \""+userId+"\"");
       socket.emit("request user action", {userId: userId, status: "forever-select"})  
     }      
   }
@@ -206,7 +205,7 @@ Gallery = (function() {
   }
 
   function createTextCard(data) {
-    newSpan = "<span class=\"card card-text\"><span id=\""+data.id+"\" class=\"text-span\"><p>"+data.src.replace("gallery-text","")+"</span></span>";
+    newSpan = "<span class=\"card card-text\"><span id=\""+data.id+"\" class=\"text-span\"><br>"+data.src.replace("gallery-text","")+"</span></span>";
     $("#gallery-item-"+data.userId).append(newSpan);
     var zIndex = $("#gallery-item-"+data.userId+" span:not(.text-span)").length - 5;
     $("#"+data.id).parent().css("z-index",zIndex);
@@ -214,11 +213,11 @@ Gallery = (function() {
   }
   
   function updateTextCard(data) {
-    $("#"+data.id).html("<p>"+data.src.replace("gallery-text",""));
+    $("#"+data.id).html("<br>"+data.src.replace("gallery-text",""));
   }
   
   function displayCanvas(data) {
-    if (galleryForeverButton === "deselect") { return; } 
+    if (galleryForeverButton === "off") { return; } 
     var canvasData = { 
             id : data.tag + "-" + data.source,
             src : data.message,
@@ -226,13 +225,13 @@ Gallery = (function() {
           }
     if ($("#gallery-item-"+data.source).length === 0 ) { createCanvas(canvasData); } 
     if (data.message.substring(0,13) === "gallery-clear") {
-      $("#gallery-item" + data.source +" .card").remove(); 
+      $("#gallery-item-" + data.source +" .card").remove(); 
       canvasData.src="";
       createTextCard(canvasData);
       return;
     }
     if (allowMultipleLayers) {
-      if (data.message.substring(0,12) === "gallery-text") {
+      if (data.message.substring(0,15) === "<p>gallery-text") {
         ($("#" + data.tag + "-" + data.source).length === 0) ? createTextCard(canvasData) : updateTextCard(canvasData);
       } else {
         ($("#" + data.tag + "-" + data.source).length === 0) ? createImageCard(canvasData) : updateImageCard(canvasData);
@@ -241,7 +240,7 @@ Gallery = (function() {
       // remove existing cards
       $("#gallery-item-" + data.source +" .card").remove(); 
       // make another one
-      if (data.message.substring(0,12) === "gallery-text") {
+      if (data.message.substring(0,15) === "<p>gallery-text") {
         createTextCard(canvasData);
       } else {
         createImageCard(canvasData);
@@ -296,10 +295,28 @@ Gallery = (function() {
     console.log("draw hover text",text);
   }
   
+  function scaleCanvas(sourceWidth, sourceHeight) {
+    var dataObj = {};
+    var ratio = sourceWidth / sourceHeight;
+    var width = canvasWidth;
+    var height = canvasWidth;
+    (sourceWidth > sourceHeight) ? height = width / ratio : width = height * ratio;
+    dataObj.width = width;
+    dataObj.height = height;
+    return dataObj;
+  }
+  
   function drawView() {
+    var dataObj = scaleCanvas($(".netlogo-canvas").width(), $(".netlogo-canvas").height());
+    var width = dataObj.width;
+    var height = dataObj.height;
     miniCanvas = document.getElementById(miniCanvasId);
-    miniCtx = miniCanvas.getContext('2d');            
-    miniCtx.drawImage(document.getElementsByClassName("netlogo-canvas")[0], 0, 0, canvasLength, canvasWidth);
+    miniCtx = miniCanvas.getContext('2d');
+    miniCtx.fillStyle="#ffffff";
+    miniCtx.fillRect(0,0,canvasWidth,canvasWidth);
+    miniCtx.fillStyle="#000000";
+    miniCtx.fillRect(0,((canvasWidth - height) / 2),width,height + 2);
+    miniCtx.drawImage(document.getElementsByClassName("netlogo-canvas")[0], 1, ((canvasWidth - height) / 2) + 1, width - 2, height);
     message = document.getElementById(miniCanvasId).toDataURL("image/jpeg", imageQuality); 
     socket.emit("send reporter", {
       hubnetMessageSource: "all-users", 
@@ -312,16 +329,13 @@ Gallery = (function() {
     var plotWidth, plotHeight, ratio, max, width, length;
     var plotName, matchingPlots;
     matchingPlots =  $("svg").filter(function() {
-      if ($(".highcharts-title tspan", this).text()){ return this; } 
+      if ($(".highcharts-title tspan", this).text() === plotName){ 
+        return this; } 
     });
-    plotWidth = $(matchingPlots[0]).width();
-    plotHeight = $(matchingPlots[0]).height();
-    ratio = plotWidth / plotHeight;
-    max = canvasWidth;
-    width = max;
-    height = max;
-    (plotWidth > plotHeight) ? height = width / ratio : width = height * ratio;
     if (matchingPlots.length > 0) {
+      var dataObj = scaleCanvas($(matchingPlots[0]).width(), $(matchingPlots[0]).height());
+      var width = dataObj.width;
+      var height = dataObj.height;
       miniCanvas = document.getElementById(miniCanvasId);
       miniCtx = miniCanvas.getContext('2d');      
       img = document.createElement("img");
@@ -329,14 +343,14 @@ Gallery = (function() {
       img.setAttribute("src","data:image/svg+xml;base64,"+btoa(unescape(encodeURIComponent(svgData))));
       img.onload = function () {
         miniCtx.fillStyle="#FFFFFF";
-        miniCtx.fillRect(0,0,max,max);
+        miniCtx.fillRect(0,0,canvasWidth,canvasWidth);
         miniCtx.fillStyle="#000000";
-        miniCtx.fillRect(0,((max - height) / 2),width,height + 2);
-        miniCtx.drawImage(img, 1, ((max - height) / 2) + 1, width - 2, height);
+        miniCtx.fillRect(0,((canvasWidth - height) / 2),width,height + 2);
+        miniCtx.drawImage(img, 1, ((canvasWidth - height) / 2) + 1, width - 2, height);
         message = document.getElementById(miniCanvasId).toDataURL("image/jpeg", imageQuality);  
         socket.emit("send reporter", {
           hubnetMessageSource: "all-users", 
-          hubnetMessageTag: "canvas-plot-populations", 
+          hubnetMessageTag: "canvas-plot-"+plotName, 
           hubnetMessage: message
         });
       }

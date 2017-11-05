@@ -83,3 +83,7 @@
 #netlogo-title {
   overflow:visible;
 }
+
+#netlogo-title p {
+  margin-top: 0px;
+}
