@@ -24,6 +24,8 @@ jQuery(document).ready(function() {
     Gallery.setupGallery({settings: data.gallerySettings, userId: userId});
     allowMultipleButtonsSelected = data.gallerySettings.allowMultipleButtonsSelected; 
     allowGalleryForeverButton = data.gallerySettings.allowGalleryForeverButton;
+    $(".roomNameInput").val(data.myRoom);
+    $(".schoolNameInput").val(data.school);
   });
 
   // display teacher or student interface
@@ -100,8 +102,9 @@ jQuery(document).ready(function() {
         else if (activityType === "hubnet") {
           world.observer.setGlobal(data.hubnetMessageTag.toLowerCase(),data.hubnetMessage);
         } else {
-          // WARNING: gbcc-set-globals overwrites globals, may not want this feature
-          if (world.observer.getGlobal(data.hubnetMessageTag) != undefined) {
+          // WARNING: gbcc:restore-globals overwrites globals, may not want this feature
+          if ((world.observer.getGlobal(data.hubnetMessageTag) != undefined) &&
+            (data.hubnetMessage != undefined)) {
             world.observer.setGlobal(data.hubnetMessageTag, data.hubnetMessage);
           }
         }

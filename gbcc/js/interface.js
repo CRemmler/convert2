@@ -96,7 +96,6 @@ Interface = (function() {
   function displayTeacherInterface(room, components) {
     showItems(components.componentRange[0], components.componentRange[1]);
     $(".netlogo-export-wrapper").css("display","block");
-    $(".roomNameInput").val(room);
     var sanitizedRoom = markdown.toHTML(room);
     $("#netlogo-title").html("<p>"+$("#netlogo-title").html()+" "+sanitizedRoom.substr(3,sanitizedRoom.length));
     $(".netlogo-view-container").removeClass("hidden");

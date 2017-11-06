@@ -94,7 +94,7 @@ io.on('connection', function(socket){
         socket.to(school+"-"+myRoom+"-teacher").emit("gbcc user enters", {userId: myUserId });
       }
       // send settings to client
-      socket.emit("save settings", {userType: myUserType, userId: myUserId, gallerySettings: config.galleryJs});
+      socket.emit("save settings", {userType: myUserType, userId: myUserId, gallerySettings: config.galleryJs, myRoom: myRoom, school: school});
       // join myRoom
       socket.join(school+"-"+myRoom+"-"+myUserType);
       // tell teacher or student to display their interface
@@ -266,11 +266,12 @@ io.on('connection', function(socket){
   });
 
   app.post('/exportgbccworld', function(req,res){
-    var allRooms = schools[socket.school];
     var form = new formidable.IncomingForm();
     form.parse(req, function(err, fields, files) {
       var myRoom = fields.roomname;
-      exportworld.exportData(allRooms[myRoom], myRoom, res);
+      var mySchool = fields.schoolname;
+      var allRooms = schools[mySchool];
+      exportworld.exportData(allRooms[myRoom], res);
     });
   });
 

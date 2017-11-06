@@ -12,27 +12,30 @@ function createReport(data, fileName) {
   webpage += "  <head>\n";
   webpage += "  </head>\n";
   webpage += "  <body>\n";
-  webpage += "    <b>"+fileName+"</b><hr>\n";
-  for (var user in data.userData) {
-    for (var key in data.userData[user] ) {
-      value = data.userData[user][key];
-      if (key.includes("canvas")) {
-        webpage += "    <p><span><b>Gallery: </b></span>\n";
-        for (var canvas in value) {
-          if (canvas === "canvas-view" || canvas === "canvas-plot") {
-            webpage += "    <p><img src='"+value[canvas]+"'>";
-          } else {
-            webpage += "    <p><span><b>"+value[canvas].replace("gallery-text","")+"</b></span>\n";            
+  webpage += "    <b>"+fileName+"</b><hr><hr>\n";
+  if (data != undefined) {
+    for (var user in data.userData) {
+      for (var key in data.userData[user] ) {
+        value = data.userData[user][key];
+        if (key.includes("canvas")) {
+          webpage += "    <p><span><b>Gallery: </b></span>\n";
+          for (var canvas in value) {
+            if (canvas === "canvas-text") {            
+              webpage += "    <p><span><b>"+value[canvas].replace("gallery-text","")+"</b></span>\n";  
+            } else {
+              webpage += "    <p><img src='"+value[canvas]+"'>";
+            }
+          }
+          webpage += "    <hr>\n";
+          //webpage += "    <p><img src='"+value+"'>";
+        } else { if (key != "exists") {
+            webpage += "    <p><span><b>"+key+"</b></span>\n";
+            webpage += "    <br><span>"+value+"</span><hr>\n";
           }
         }
-        //webpage += "    <p><img src='"+value+"'>";
-      } else { if (key != "exists") {
-          webpage += "    <p><span><b>"+key+"</b></span>\n";
-          webpage += "    <br><span>"+value+"</span><hr>\n";
-        }
       }
+      webpage += "    <hr><hr>\n";
     }
-    webpage += "    <hr>\n";
   }
   webpage += "  </body>\n";
   webpage+= "</html>";
@@ -50,12 +53,14 @@ function sendResponse(reportData, zip, res, fileName) {
 }
 
 module.exports = {
-  exportData: function (data, roomName, res) {
+  exportData: function (data, res) {
     var zip = new JSZip();
     var d = new Date();
-    var fileName = roomName+"-"+d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()+"-"+d.getHours()+"-"+d.getMinutes();
-    for (var user in data.userData) {
-      for (var key in data.userData[user] ) { if (key === "exists") { data.userData[user][key]=false; } }
+    var fileName = d.getFullYear()+"-"+d.getMonth()+"-"+d.getDate()+"-"+d.getHours()+"-"+d.getMinutes();
+    if (data != undefined) {
+      for (var user in data.userData) {
+        for (var key in data.userData[user] ) { if (key === "exists") { data.userData[user][key]=false; } }
+      }
     }
     zip.file("world.json", JSON.stringify(data));
     sendResponse(createReport(data, fileName), zip, res, fileName);

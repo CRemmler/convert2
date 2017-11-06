@@ -107,8 +107,13 @@ Gallery = (function() {
       } else {
         $(".selected").each(function() {
           if ($(this).attr("id") && $(this).attr("id").includes("gallery-item-")) {
-            socket.emit("request user action", {userId: $(this).attr("id").replace("gallery-item-",""), status: "deselect"}); 
+            thisUserId = $(this).attr("id").replace("gallery-item-","");
+            socket.emit("request user action", {userId: thisUserId, status: "deselect"}); 
             $(this).removeClass("selected");
+            if ($(this).children(".forever-icon").hasClass("selected")) {
+              $(this).children(".forever-icon").removeClass("selected").css("display","none");
+              socket.emit("request user action", {userId: thisUserId, status: "forever-deselect"});  
+            }
           }
         });
         $(thisElt).parent().addClass("selected");
