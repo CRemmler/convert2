@@ -36,7 +36,7 @@ function createHtmlReport(data, settings) {
             }
           }
         }
-        webpage += "    <hr><hr>\n";
+        webpage += "\n";
       }
     }
   }
