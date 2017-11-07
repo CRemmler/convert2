@@ -9,7 +9,7 @@ function createHtmlReport(data, settings) {
   var webpage = "";
   var value;
   webpage += "<html>\n";
-  webpage += "  <head><style>p {margin-left:20px} h3 {background-color:#ddd;} h2 {background-color:yellow;}</style>\n";
+  webpage += "  <head><style>p {margin-left:20px} h2 {background-color:#ddd;} h3 {background-color:yellow;}</style>\n";
   webpage += "  </head>\n";
   webpage += "  <body>\n";
   webpage += "    <h1>"+settings.schoolName+"</h1>\n";
@@ -24,7 +24,7 @@ function createHtmlReport(data, settings) {
           if (key.includes("canvas")) {
             for (var canvas in value) {
               if (canvas === "canvas-text") {            
-                webpage += "    <p><span><b>Text</b></span>\n";
+                webpage += "    <p><span><b>text</b></span>\n";
                 webpage += "    <br><span>"+value[canvas].replace("gallery-text","")+"</span>\n";
               } else {
                 webpage += "    <p><img src='"+value[canvas]+"'>";
