@@ -271,7 +271,8 @@ io.on('connection', function(socket){
       var myRoom = fields.roomname;
       var mySchool = fields.schoolname;
       var allRooms = schools[mySchool];
-      exportworld.exportData(allRooms[myRoom], res);
+      var settings = {schoolName: mySchool};
+      exportworld.exportData(allRooms, settings, res);
     });
   });
 
