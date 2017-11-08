@@ -27,6 +27,8 @@ Gallery = (function() {
     allowTeacherControls = settings.allowTeacherControls || false;
     if (allowTabs) { // student, hubnet
       $(".netlogo-tab-area").removeClass("hidden");
+    } else {
+      $(".netlogo-gallery-tab").css("display","none");
     }
     if (allowGalleryForeverButton) {
       $(".netlogo-gallery-tab").append("<span class='gallery-forever-icon'><i class='fa fa-refresh' aria-hidden='true'></i></span>")
@@ -196,6 +198,7 @@ Gallery = (function() {
   function createImageCard(data) {
     var canvasImg = new Image();
     canvasImg.id = data.id;
+    data.id = data.id.replace(" ","-");
     canvasImg.src = data.src;
     canvasImg.userId = data.userId;
     newSpan = "<span class=\"card card-image\"><img id='"+data.id+"' src='"+data.src+"'></span>";
@@ -206,6 +209,7 @@ Gallery = (function() {
   }
   
   function updateImageCard(data) {
+    data.id = data.id.replace(" ","-");
     $("#"+data.id).attr("src", data.src);
   }
 
@@ -355,7 +359,7 @@ Gallery = (function() {
         message = document.getElementById(miniCanvasId).toDataURL("image/jpeg", imageQuality);  
         socket.emit("send reporter", {
           hubnetMessageSource: "all-users", 
-          hubnetMessageTag: "canvas-plot-"+plotName, 
+          hubnetMessageTag: "canvas-plot-"+plotName.replace(" ","-"), 
           hubnetMessage: message
         });
       }
