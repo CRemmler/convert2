@@ -1,0 +1,72 @@
+
+.red { border: 2px solid red; height:1000px; }
+.orange{ border: 2px solid orange; }
+.yellow { border: 2px solid yellow; }
+.green{ border: 2px solid #00cc00; }
+.blue { border: 2px solid blue; }
+.indigo { border: 2px solid #9933ff; }
+.violet{ border: 2px solid #cc3399; }
+.demo-container-wrapper {padding:0px;}
+.demo-container { position: relative; border: 1px solid black; width:500px; border-radius: 10px; padding:10px;}
+#container0 {float:left;}
+#container1 {float:right;}
+#settings {padding:0px 0px 0px 20px;}
+.demo {position: absolute}
+#demo0a { top:130px; left:260px;}
+#demo0b { top:260px; left: 202px; }
+.demo1 { top:280px; left:12px; width:498; }
+.demo2 { top:364px; left:48px; }
+.demo3a { top:364px; left:156px; }
+.demo3 { top:364px; left:265px; }
+.demo4 { top:364px; left:265px; }
+.demo5 { top:328px; left:480px; }
+.basicModel { width:475px; }
+.basicTabs { position: absolute; top:277px; left:13px; }
+.tabCover { position: absolute; top:280px; left: 5px; }
+.user {position: absolute; top:50px; left:10px; width:190px;}
+.demo1.notes { top:0px; left:0px; }
+.demo2.notes { top:239px; left:0px; }
+.demo3.notes { top:360px; left:148px; }
+.demo4.notes { top:368px; left:360px; }
+.demo5.notes { top:169px; left:401px; }
+.notes {position: absolute;}
+.basicModel.notes { top:30px; left:375px; width:136px;}
+.galleryTab.notes { top:290px; left:285px; }
+.allTabs.notes { top:207px; left:131px;}
+.viewControls.notes { position: absolute; top:132px; left:272px; }
+.code {font-family: "Courier New", Courier; }
+body { 
+  font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; 
+  padding: 20px;
+}
+.item {
+  overflow:hidden;
+  list-style-type: none;
+}
+img { 	
+  border-radius: 15px; 
+  margin:5px 0px 5px 0px;
+}
+.smallIcon {
+  position: relative;
+  top: 18px;
+}
+a {
+  text-decoration: none;
+}
+.instructions {
+  border-radius: 0px;
+  border:2px solid #ddd;
+}
+.createIcon {
+  border:2px solid rebeccapurple;
+  width:60px;
+  height:60px;
+  margin:5px;
+}
+.createIcon {
+  cursor: pointer;
+}
+.notice { font-size: 14px; color:red; }
+#downloadDisabled {cursor: default;}
+.smallText { font-size: 14px;}
