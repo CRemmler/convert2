@@ -1,110 +1,180 @@
 <html>
   <head>
     <title>Hubnet Web</title>
-    <link rel="stylesheet" type="text/css" href="css/style.css" />
+    <link rel="stylesheet" href="css/netlogo.css" type="text/css">
     <script type="text/javascript" src="gbcc/js/jquery.min.js"></script>
     <script type="text/javascript" src="js/convert.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/style2.css" />
+    <style>
+  </style>
   </head>
   <body>
-    <h1>Converter 2.0</h1>
-    <h3>Convert "NetLogo" to "NetLogo Hubnet/GbCC Web"</h3>
-    <p>
-   <form action="fileupload" method="post" enctype="multipart/form-data">
-    <div class='red'><b>1. Find a NetLogo file or NetLogo Hubnet file.</b>
-      <p>Run NetLogo 6.x. 
-      <p>Open a NetLogo file like "Fireworks" or a NetLogo Hubnet file like "Gridlock Hubnet". 
-      <p>Save file with a .nlogo extension.
-      <p>Choose Layout:
-      <br><input type='radio' name='template' id='disease'>Disease Layout (Default Layout for NetLogo Hubnet file)
-      <br><input type='radio' name='template' id='introbuttons'>Introbuttons Layout (Default Layout for NetLogo file)
-      <br><input type='radio' name='template' id='custom'>Custom Layout
-      <p>Layouts can include the following settings:
-      <br><input type='checkbox' name='allowTeacherControls' choice='0' class='choice'> Allow teachers to control students' access to their View, Tabs and Widgets.
-      <br><input type='checkbox' name='allowTabs' choice='1' class='choice'> Allow students to have Command Center, NetLogo Code, Gallery and Model Info Tabs.
-      <div id='settings'>
-        <input type='checkbox' name='allowMultipleLayers' choice='2' class='choice'> Allow canvases to have multiple layers.
-        <br><input type='checkbox' name='allowMultipleSelections' choice='3' class='choice'> Allow students to select multiple canvases. 
-        <br><input type='checkbox' name='allowCanvasForeverButtons' choice='4' class='choice'> Allow canvases to act as forever buttons.
-        <br><input type='checkbox' name='allowGalleryForeverButton' choice='5' class='choice'> Allow students the option to listen or ignore.
-      </div>
-    <br>
-    <div class="demo-container-wrapper">
-      <div class='demo-container' id='container0'>
-        <img class="user" src="images/teacher.png">
-        <img class='basicModel' src="images/basicModel.png">
-        <img class='demo demo1' src="images/demo1.png">
-        <img class='demo demo2' src="images/demo2.png">  
-        <img class='demo demo3a' src="images/demo3a.png">  
-        <img class='demo demo3' src="images/demo3.png">      
-        <img class='demo demo4' src="images/demo4.png">        
-        <img class='demo demo5' src="images/demo5.png"> 
-        <img class='demo demo4 notes' src="images/teal.png"> 
-        <img class='demo basicModel notes' src="images/brown.png"> 
-        <img class='demo demo3 notes' src="images/orange.png"> 
-        <img class='demo demo2 notes' src="images/yellow.png"> 
-        <img class='demo demo5 notes' src="images/green.png"> 
-        <img class='demo demo0' id="demo0a" src="images/gray.png">         
-        <img class='demo demo0' id = "demo0b" src="images/viewControls.png">
-        <img class='demo basicTabs' src="images/basicTabs.png">
-        <img class='demo allTabs notes' src="images/pink.png"> 
-        <img class='demo basicTabs galleryTab notes' src="images/blue.png"> 
-      </div>
-      <div class='demo-container' id='container1'>
-        <img class="user" src="images/student.png">
-        <img class='basicModel' src="images/basicModel.png">
-        <img class='demo demo1' src="images/demo1.png">
-        <img class='demo demo2' src="images/demo2.png">  
-        <img class='demo demo3a' src="images/demo3a.png">  
-        <img class='demo demo3' src="images/demo3.png">      
-        <img class='demo demo4' src="images/demo4.png">        
-        <img class='demo demo5' src="images/demo5.png">   
-        <img class='demo allTabs notes student' src="images/pink.png"> 
-        <img class='demo demo4 notes' src="images/teal.png"> 
-        <img class='demo basicTabs galleryTab notes' src="images/blue.png"> 
-        <img class='demo basicModel notes student' src="images/brown.png"> 
-        <img class='demo demo3 notes' src="images/orange.png"> 
-        <img class='demo demo2 notes' src="images/yellow.png"> 
-        <img class='demo demo5 notes' src="images/green.png"> 
-        <img class='demo tabCover' src="images/tabCover.png">
-      </div>
+    <h1>NetLogo GbCC Converter</h1>
+    <div class="version">
+      GbCC 2.0
     </div>
-  </div>
+    <form action="fileupload" method="post" enctype="multipart/form-data">
+      <h2>Create a NetLogo Model</h2>
+      <table>
+        <tr>
+          <td><img class="createIcon" id="nlogo"src="./images/create-nlogo.png">
+          </td>
+          <td> <b>Step 1:</b> Create a model using <a href="https://ccl.northwestern.edu/netlogo/">NetLogo</a>.
+            Save your model as a .nlogo file. <span class="notice">(Note: Click on each icon for more information.)</span>
+          </td>
+        </tr>  
+        <tr id="nlogoContainer" class="initHidden">
+          <td>
+          </td>
+          <td>
+            Check out the following resources:
+            <ul>
+            <li><a href="https://ccl.northwestern.edu/netlogo/docs/dictionary.html">NetLogo Dictionary</a>
+            <li><a href="https://ccl.northwestern.edu/netlogo/docs/programming.html">NetLogo Programming Guide</a>
+            <li><a href="https://remmler.org/gbcc/v2/docs.html">NetLogo GbCC Dictionary</a>
+            <li><a href="https://remmler.org/gbcc/v2/programming.html">NetLogo GbCC Programming Guide</a>
+            </ul>
+            <img class="instructions" src="./images/nlogo-1.png">
+          </td>
+        </tr>  
+      </table>
+      <h2>Convert NetLogo model to GbCC Model</h2>
+      <table>
+        <tr>
+          <td><img class="createIcon" id="setting" src="./images/create-setting.png">
+          </td>
+          <td><b>Step 2:</b> Choose settings for your GbCC Model.</b>
+          </td>
+        </tr>
+        <tr id="settingContainer" class="initHidden">
+          <td>
+          </td>
+          <td>
+            <div>
+              <input type='checkbox' name='allowTabs' choice='1' class='choice'> Allow students to have Tabs.
+              <br><input type='checkbox' name='allowTeacherControls' choice='0' class='choice'> Allow teachers to control students' access to their View and Tabs.
+              <br><input type='checkbox' name='allowMultipleLayers' choice='2' class='choice'> Allow canvases to have multiple layers.
+              <br><input type='checkbox' name='allowMultipleSelections' choice='3' class='choice'> Allow users to select multiple canvases. 
+              <br><input type='checkbox' name='allowCanvasForeverButtons' choice='4' class='choice'> Allow canvases to act as forever buttons.
+              <br><input type='checkbox' name='allowGalleryForeverButton' choice='5' class='choice'> Allow users the option to listen or ignore.
+              <p>
+              <div class="demo-container-wrapper">
+                <div class='demo-container' id='container0'>
+                  <img class="basicModel" src="images/basicModel.png">
+                  <img class='demo demo1' src="images/demo1.png">
+                  <img class='demo demo2' src="images/demo2.png">  
+                  <img class='demo demo3a' src="images/demo3a.png">  
+                  <img class='demo demo3' src="images/demo3.png">      
+                  <img class='demo demo4' src="images/demo4.png">        
+                  <img class='demo demo5' src="images/demo5.png"> 
+                  <img class='demo demo4 notes' src="images/teal.png"> 
+                  <img class='demo basicModel notes' src="images/brown.png"> 
+                  <img class='demo demo3 notes' src="images/orange2.png"> 
+                  <img class='demo demo2 notes' src="images/yellow.png"> 
+                  <img class='demo demo5 notes' src="images/green.png"> 
+                  <img class='demo demo0' id="demo0a" src="images/gray.png">         
+                  <img class='demo demo0' id = "demo0b" src="images/viewControls.png">
+                  <img class='demo basicTabs galleryTab notes' src="images/blue.png"> 
+                </div>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><img class="createIcon" id="uploadIcon" src="./images/create-upload.png">
+          </td>
+          <td><b>Step 3:</b> Choose the .nlogo file to upload.
+            <input type="file" accept=".nlogo" id="selectFileButton" class="initHidden" name="filetoupload">
+            <div id="uploadFileContainer" class="initHidden smallText">
+              <b>Filename: </b>
+              <span id="filename"></span>
+              <span id="incorrectFilename" style="color:red">x Please use a .nlogo file.</span>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td><img class="createIcon initHidden" id="downloadEnabled" src="./images/create-download.png">
+            <img class="createIcon" id="downloadDisabled" src="./images/create-download-bw.png">
+          </td>
+          <td><b>Step 4:</b> Download the .zip file.</b>
+            <span id="correctFilename" class="initHidden"><button id="uploadFileButton" type="submit">Upload</button></span>
+          </td>
+        </tr>
+      </table>
+      <h2>Create a Website for your GbCC Model.</h2>
+      <table>
+        <tr>
+          <td><img class="createIcon" id="dropbox" src="./images/create-dropbox.png">
+          </td>
+          <td><b>Step 6:</b> Create a <a href="https://www.dropbox.com/">Dropbox</a> account and save your .zip file.</b>
+          </td>
+        </tr>
+        <tr id="dropboxContainer" class="initHidden">
+          <td>
+          </td>
+          <td> 
+            Save your .zip file, in your local Dropbox folder.
+            <br><img class="instructions" src="./images/dropbox-1.png">
+            <br><br>Find your .zip file, in the Dropbox website.
+            <br><img class="instructions" src="./images/dropbox-2.png">
+          </td>
+        </tr>  
+        <tr>
+          <td><img class="createIcon" id="heroku" src="./images/create-heroku.png">
+          </td>
+          <td><b>Step 7:</b> Get a <a href="https://dashboard.heroku.com/">Heroku</a> account. Follow instructions to create and deploy a NodeJS app.</b>
+          </td>
+        </tr>
+        <tr id="herokuContainer" class="initHidden">
+          <td>
+          </td>
+          <td> 
+              Select "Node.js" and press the Create New App button.
+              <br><img class="instructions" src="./images/heroku-1.png">
+              <br><br>Choose a unique name and press the Create App button.
+              <br><img class="instructions" src="./images/heroku-2.png">
+              <br><br>Select Dropbox as the deployment method and press the Connect to Dropbox button.
+              <br><img class="instructions" src="./images/heroku-3.png">
+              <br><br>Sign in to Dropbox.
+              <br><img class="instructions" src="./images/heroku-4.png">
+              <br><br>Allow Heroku access to Dropbox.
+              <br><img class="instructions" src="./images/heroku-5.png">
+              <br><br>Unzip your myGbccModel.zip file to create a myGbccModel folder. Copy the contents of the myGbccModel folder to the Apps > Heroku > my-gbcc-model folder.
+              <br><img class="instructions" src="./images/heroku-6.png">
+              <br><br>Deploy your app by pressing the Deploy button. Open the app by pressing the Open App button.
+              <br><img class="instructions" src="./images/heroku-7.png">
+          </td>
+        </tr>  
+        <tr>
+          <td><img class="createIcon" id="arrow" src="./images/create-arrow.png">
+          </td>
+          <td><b>Step 8:</b> Go to the url for your model.</b>
+            <div id="viewUrlContainer" class="initHidden smallText">
+              <!--<span id="modelUrl"></span>-->
+              <b>Email address:</b>
+              <input type="text">
+              <button>Email the url and passcode</button>
+            </div>
+          </td>
+        </tr>
+        <tr id="arrowContainer" class="initHidden">
+          <td>
+          </td>
+          <td>
+            <img class="instructions" src="./images/arrow-1.png">
+          </td>
+        </tr>  
+      </table>
+    </form>
+    <h2>Troubleshoot</h2>
+      If there is an error like <span class='code'>There is already a global variable called STEP-SIZE</span>, then comment out that global variable.
+    
     <p>
-    <div class='orange'><b>2. Upload a NetLogo file or a NetLogo Hubnet file.</b>
-      <p>
-      <!--<form action="fileupload" method="post" enctype="multipart/form-data">-->
-        <input type="file" id="selectFileButton" name="filetoupload">
-        <p>
-        <button type="submit" id="uploadButton">Upload</button>
-      <!--</form>-->
-    </div>
-    <p>
-   </form>
-    <div class='yellow'><b>3. Receive Download of a NetLogo Hubnet/GbCC Web zip file.</b>
-    </div>
-    <p>
-    <div class='green'><b>4. Run NetLogo Hubnet/GbCC Web App locally.</b>
-      <br>Install node and npm.
-      <br>Unzip the compressed NetLogo Hubnet Web file.
-      <br>In a command line, navigate to the unzipped folder.
-      <br>Type <span class='code'>npm install</span> to install dependencies.
-      <br>This reads the package.json file and installs dependencies in a node-modules folder.
-      <br>Type <span class='code'>node server.js</span> to run the server (use ctrl-c to stop it)
-      <br>Open a browser and go to <span class='code'>localhost:3000</span>
-    </div>
-    <p>
-    <div class='blue'><b>5. Troubleshoot </b>
-      <br>If there is an error like <span class='code'>There is already a global variable called STEP-SIZE</span>, then comment out that global variable.
-    </div>
-    <p>
-    <div class='indigo'><b>6. Host NetLogo Hubnet Web App remotely.</b>
-      <br>Build and deploy on Heroku.com
-    </div>
-    <p>
-    <div class='violet'><b>7. Share Activities</b>
-      <br>Group-based Cloud Computing
-      <br><a href="www.remmler.org/gbcc">www.remmler.org/gbcc</a>
-      <br>c_remmler@yahoo.com
-    </div>
+      <h2>Other</h2>
+      <a href="https://gbccstem.com">NetLogo GbCC Project Site</a>
+      <br><br><a href="https://www.remmler.org/gbcc/">NetLogo GbCC 1.0 Site</a>
+      <br><br><a href="https://www.remmler.org/gbcc/v2/">NetLogo GbCC 2.0 Site</a>
+      <br><br><a href="https://github.com/CRemmler/convert2">Converter 2.0 Source on Github</a>
+      <br><br>c_remmler@yahoo.com
   </body>
 </html>

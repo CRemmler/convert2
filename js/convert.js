@@ -1,6 +1,7 @@
 
   jQuery(document).ready(function() {
     $(".demo").css("display","none");
+    $("[choice='1']").click();
     $("#container0 .basicTabs").css("display","block");
     $("#container1 .tabCover").css("display","block");
     $(".basicModel.notes").css("display","block");
@@ -80,5 +81,46 @@
       if (choice != "custom" && choice != "disease" && $(".demo3a").css("display") === "none") {
         $(".demo3a").css("display","block");
       }
+    });
+    var filename;
+    $("#addModel").on("click",function() {
+      alert("Email your model to c_remmler@yahoo.com, and I can post it. Thanks! - C");
+    });
+    $(".createIcon").on("click", function() {
+      var id = $(this).attr("id");
+      $("#"+id+"Container").toggle();
+    });
+    $(".demo1").css("display","block");
+    $(".initHidden").css("display","none");
+    $("#uploadIcon").on("click", function() {
+      var choices = [];
+      for (var k=0;k<6;k++) { choices.push($($("form")[0][k]).is(":checked")); } //save checkbox values
+      $("form").trigger("reset"); //reset to clear files value
+      $("#uploadFileContainer").css("display","none");
+      $("#downloadEnabled").css("display","none");
+      $("#downloadDisabled").css("display","inline-block");
+      for (var k=0;k<6;k++) {	if (choices[k]) { $($("form")[0][k]).click(); }} //reapply checkbox values
+      $("#viewUrlContainer").css("display","none");
+      $("#selectFileButton").click();
+    });
+    $('input[type="file"]').change(function() {
+      $("#uploadFileContainer").css("display","block");
+      filename = $("#selectFileButton")[0].files[0].name;
+      fileprefix = filename.substr(0,filename.lastIndexOf('.'));
+      $("#filename").html(filename);
+      if (filename.substr(filename.lastIndexOf('.') + 1) === "nlogo") {
+        //$("#correctFilename").css("display", "inline-block");
+        $("#incorrectFilename").css("display", "none");
+        $("#downloadEnabled").css("display","inline-block");
+        $("#downloadDisabled").css("display","none");
+      } else {
+        //$("#correctFilename").css("display", "none");
+        $("#incorrectFilename").css("display", "inline-block");
+        $("#downloadEnabled").css("display","none");
+        $("#downloadDisabled").css("display","inline-block");
+      }
+    });
+    $("#downloadEnabled").on("click",function() {
+      $("#uploadFileButton").click();
     });
   });
